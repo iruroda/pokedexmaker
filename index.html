@@ -292,27 +292,30 @@ table.st td.dn{color:#b03a3a;background:#fdf3f3}
 .qzwrap{padding:22px 18px calc(60px + env(safe-area-inset-bottom));text-align:center;min-height:100%}
 .qzhead{font-size:12px;font-weight:800;color:var(--sub);font-variant-numeric:tabular-nums;margin-bottom:6px}
 .qzq{font-size:17px;font-weight:800;letter-spacing:-.3px;margin-bottom:16px;word-break:keep-all;text-align:left}
-.qzpic{width:170px;height:170px;object-fit:contain;margin:0 auto 8px;display:block}
-.qzpname{font-size:15px;font-weight:800;letter-spacing:-.3px;margin-bottom:20px}
+.qzq1,.qzq2{max-width:380px;margin:0 auto 16px}
+.qzpoke{border:1px solid var(--line);border-radius:14px;max-width:380px;margin:0 auto 18px;padding:14px 0 12px}
+.qzpic{width:150px;height:150px;object-fit:contain;margin:0 auto 6px;display:block}
+.qzpname{font-size:15px;font-weight:800;letter-spacing:-.3px}
 .qztypes{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:380px;margin:0 auto 22px}
-.qztypes b{height:40px;border-radius:10px;position:relative;display:flex;align-items:center;padding-left:9px;
- font-size:13px;font-weight:800;cursor:pointer;letter-spacing:-.3px;border:3px solid transparent;
- opacity:.55;transition:transform .1s,opacity .12s,border-color .12s}
-.qztypes b img{width:18px;height:18px;object-fit:contain;position:relative;z-index:1;flex:0 0 auto}
-.qztypes b .tn{position:absolute;left:0;right:0;text-align:center;pointer-events:none}
+.qztypes b{height:40px;border-radius:10px;display:flex;align-items:center;padding-left:9px;
+ font-size:13px;font-weight:800;cursor:pointer;letter-spacing:-.3px;border:2px solid transparent;
+ transition:transform .1s,border-color .12s,box-shadow .12s}
+.qztypes b .ic{width:26px;flex:0 0 auto;display:flex;align-items:center}
+.qztypes b .ic img{width:26px;height:26px;object-fit:contain;display:block}
+.qztypes b .tn{flex:1;text-align:center}
 .qztypes b:active{transform:scale(.94)}
-.qztypes b.sel{opacity:1;border-color:#1a1a1a;transform:scale(1.03)}
+.qztypes b.sel{border-color:#fff;box-shadow:0 0 0 2px var(--tc);transform:scale(1.03)}
 .qzconfirm{display:block;margin:0 auto;min-width:140px;height:46px;border:0;border-radius:23px;
  background:#E4515B;color:#fff;font-size:15px;font-weight:800;cursor:pointer;letter-spacing:-.3px;
  box-shadow:0 4px 14px rgba(228,81,91,.35);transition:opacity .12s,transform .1s}
 .qzconfirm:active{transform:scale(.96)}
 .qzconfirm[disabled]{opacity:.35;pointer-events:none;box-shadow:none}
-.qzdesc{background:var(--soft);border-radius:14px;padding:16px 18px;max-width:340px;margin:0 auto 22px;
+.qzdesc{background:transparent;border:1px solid var(--line);border-radius:14px;padding:16px 18px;max-width:380px;margin:0 auto 22px;
  text-align:left;font-size:14px;line-height:2}
-.qzdesc b{color:#E4515B;font-weight:800;margin-right:8px;display:inline-block;min-width:52px}
+.qzdesc b{color:var(--accent);font-weight:800;margin-right:8px;display:inline-block;min-width:52px}
 .qzdesc .qzhw{display:flex}
 .qzdesc .qzhw .qzhalf{flex:1;display:flex;align-items:baseline}
-.qz2grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:440px;margin:0 auto}
+.qz2grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:380px;margin:0 auto}
 .qzopt{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 6px 12px;
  cursor:pointer;transition:transform .1s}
 .qzopt:active{transform:scale(.95)}
@@ -760,16 +763,25 @@ function renderQ(){
   const wrap=$('qzwrap'); if(!wrap) return;
   if(q.type===1){
     wrap.innerHTML=`<div class="qzhead">${quiz.idx+1} / ${quiz.n}</div>
-      <div class="qzq">아래 포켓몬의 타입은?</div>
-      <img class="qzpic" src="${LG(p.no,f.k)}" alt="${esc(p.nm)}">
-      <div class="qzpname">${esc(p.nm)}</div>
+      <div class="qzq qzq1">아래 포켓몬의 타입은?</div>
+      <div class="qzpoke">
+        <img class="qzpic" src="${LG(p.no,f.k)}" alt="${esc(p.nm)}">
+        <div class="qzpname">${esc(p.nm)}</div>
+      </div>
       <div class="qztypes" id="qztypes">${QTYPES.map(t=>{ const c=D.tc[t]||'#999';
-        return `<b data-t="${esc(t)}" style="background:${c};color:${vtext(c)}">${TI[t]?`<img src="${TI[t]}" alt="">`:''}<span class="tn">${esc(t)}</span></b>`; }).join('')}</div>
+        return `<b data-t="${esc(t)}" style="background:${c};color:${vtext(c)};--tc:${c}">${TI[t]?`<span class="ic"><img src="${TI[t]}" alt=""></span>`:''}<span class="tn">${esc(t)}</span></b>`; }).join('')}</div>
       <button class="qzconfirm" id="qzconfirm" disabled>결정</button>`;
     $('qztypes').onclick=e=>{ const b=e.target.closest('b'); if(!b||quiz.busy) return;
       const t=b.dataset.t, i=quiz.sel.indexOf(t);
       if(i>=0){ quiz.sel.splice(i,1); b.classList.remove('sel'); }
-      else{ if(quiz.sel.length>=2) return; quiz.sel.push(t); b.classList.add('sel'); }
+      else{
+        if(quiz.sel.length>=2){
+          const oldT=quiz.sel.shift();
+          const oldBtn=[...$('qztypes').children].find(x=>x.dataset.t===oldT);
+          if(oldBtn) oldBtn.classList.remove('sel');
+        }
+        quiz.sel.push(t); b.classList.add('sel');
+      }
       $('qzconfirm').disabled=quiz.sel.length===0; };
     $('qzconfirm').onclick=()=>{ if(quiz.busy||quiz.sel.length===0) return;
       const ans=f.ty; const ok=quiz.sel.length===ans.length && quiz.sel.every(t=>ans.includes(t));
@@ -785,7 +797,7 @@ function renderQ(){
     decoy=decoy.slice(0,5);
     const options=shuffle([{p,ok:true},...decoy.map(x=>({p:x,ok:false}))]);
     wrap.innerHTML=`<div class="qzhead">${quiz.idx+1} / ${quiz.n}</div>
-      <div class="qzq">아래 설명에 해당하는 포켓몬은?</div>
+      <div class="qzq qzq2">아래 설명에 해당하는 포켓몬은?</div>
       <div class="qzdesc"><div><b>분류</b>${esc(f.ct||'')}</div>
         <div class="qzhw"><div class="qzhalf"><b>키</b>${fmtH(f.h,f)}</div><div class="qzhalf"><b>몸무게</b>${fmtW(f.w,f)}</div></div></div>
       <div class="qz2grid" id="qz2grid">${options.map(o=>
@@ -799,8 +811,14 @@ function finishQ(ok){ quiz.busy=true; if(ok) quiz.correct++; showResult(ok);
 function showResult(ok){
   const d=document.createElement('div'); d.className='qzresult';
   d.innerHTML = ok
-    ? '<svg viewBox="0 0 100 100" width="92" height="92"><circle cx="50" cy="50" r="40" fill="none" stroke="#1565c0" stroke-width="10"/></svg>'
-    : '<svg viewBox="0 0 100 100" width="92" height="92"><line x1="26" y1="26" x2="74" y2="74" stroke="#e53935" stroke-width="10" stroke-linecap="round"/><line x1="74" y1="26" x2="26" y2="74" stroke="#e53935" stroke-width="10" stroke-linecap="round"/></svg>';
+    ? '<svg viewBox="0 0 200 200" width="184" height="184">'
+      +'<circle cx="100" cy="100" r="80" fill="none" stroke="#fff" stroke-width="28"/>'
+      +'<circle cx="100" cy="100" r="80" fill="none" stroke="#1565c0" stroke-width="20"/></svg>'
+    : '<svg viewBox="0 0 200 200" width="184" height="184">'
+      +'<line x1="20" y1="20" x2="180" y2="180" stroke="#fff" stroke-width="28" stroke-linecap="round"/>'
+      +'<line x1="180" y1="20" x2="20" y2="180" stroke="#fff" stroke-width="28" stroke-linecap="round"/>'
+      +'<line x1="20" y1="20" x2="180" y2="180" stroke="#e53935" stroke-width="20" stroke-linecap="round"/>'
+      +'<line x1="180" y1="20" x2="20" y2="180" stroke="#e53935" stroke-width="20" stroke-linecap="round"/></svg>';
   $('detail').appendChild(d); setTimeout(()=>d.remove(),950);
 }
 function endQuiz(){
