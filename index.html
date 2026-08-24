@@ -269,7 +269,7 @@ table.st td.dn{color:#b03a3a;background:#fdf3f3}
  border-radius:999px;opacity:0;pointer-events:none;transition:.2s;white-space:nowrap}
 #toast.on{opacity:1;transform:translate(-50%,0)}
 .empty{padding:40px 20px;text-align:center;color:#aaa;font-size:13px;line-height:1.7}
-.foot{padding:18px 12px calc(28px + env(safe-area-inset-bottom));text-align:center;font-size:10px;color:#c4c4c4}
+.foot{padding:18px 12px calc(28px + env(safe-area-inset-bottom));text-align:center;font-size:7.5px;line-height:1.35;letter-spacing:-.1px;color:#c4c4c4}
 /* ===== 상세 우하단 뒤로가기(메인) 플로팅 버튼 ===== */
 #backfab{position:fixed;left:0;right:0;bottom:calc(20px + env(safe-area-inset-bottom));z-index:70;
  max-width:520px;margin:0 auto;padding:0 18px;text-align:right;pointer-events:none;display:none}
@@ -358,7 +358,7 @@ table.st td.dn{color:#b03a3a;background:#fdf3f3}
   <div id="acbox"></div>
   <div class="tbspace"></div>
   <div class="grid" id="grid"></div>
-  <div class="foot">포켓몬 도감 메이커</div>
+  <div class="foot">본 사이트는 팬이 만든 비공식 사이트로, 닌텐도, 게임프리크, 주식회사 포켓몬과는 어떠한 관계도 없습니다. Pokemon은 닌텐도 / Creatures Inc. / Game Freak Inc.의 상표입니다. 모든 게임 콘텐츠, 이미지, 상표는 각 권리자에게 귀속됩니다.</div>
 </div>
 <div id="menuBtnWrap"><div class="ic hamb" id="menuBtn" aria-label="메뉴"><span></span><span></span><span></span></div></div>
 <div id="sideov"></div>
@@ -452,25 +452,29 @@ function closeSide(){ $('side').classList.remove('on'); $('sideov').classList.re
 $('menuBtn').onclick = ()=>{ $('side').classList.contains('on') ? closeSide() : openSide(); };
 $('sideov').onclick = closeSide;
 
-/* ===== 로그인 (Pokélab 연동, pokopia 로그인창 구조 참고) =====
-   TODO: FIREBASE_CONFIG를 pokelab/pokopia와 동일한 실제 프로젝트 값으로 채워야 로그인이 실제로 동작함.
-   TODO: 관리자 판정은 우선 Firestore users/{uid}.admin 필드를 가정 — 실제 판정 규칙 확인 후 수정 필요.
-   TODO: 아이디 입력값을 Firebase Auth 이메일로 그대로 사용 중 — 아이디 체계가 다르면(예: 아이디→이메일 매핑) 수정 필요. */
+/* ===== 로그인 (Pokélab 연동, pokopia와 동일한 Firebase 프로젝트/아이디체계 사용) ===== */
 const FIREBASE_CONFIG = {
-  apiKey: "REPLACE_ME",
-  authDomain: "REPLACE_ME",
-  projectId: "REPLACE_ME",
-  storageBucket: "REPLACE_ME",
-  messagingSenderId: "REPLACE_ME",
-  appId: "REPLACE_ME"
+  apiKey: "AIzaSyA1qlkS_vNnAEMhyeJxH0EHRxYrFeJXZDk",
+  authDomain: "todayspokemon-ef9c0.firebaseapp.com",
+  projectId: "todayspokemon-ef9c0",
+  storageBucket: "todayspokemon-ef9c0.firebasestorage.app",
+  messagingSenderId: "69457831977",
+  appId: "1:69457831977:web:faeee4ba343a6c9b931438"
 };
 let fbReady = false;
 try{
-  if(window.firebase && FIREBASE_CONFIG.apiKey !== "REPLACE_ME"){
+  if(window.firebase){
     firebase.initializeApp(FIREBASE_CONFIG);
     fbReady = true;
   }
 }catch(e){ console.warn('Firebase init 실패:', e); }
+
+/* pokelab과 동일한 아이디→이메일 변환 (계정 공유를 위해 반드시 동일해야 함) */
+function idToEmail(id){
+  var hex="",b=unescape(encodeURIComponent(id));
+  for(var i=0;i<b.length;i++){var h=b.charCodeAt(i).toString(16);hex+=(h.length<2?"0":"")+h}
+  return "u"+hex+"@todayspokemon.app";
+}
 
 let loggedIn = false;
 function setAuthUI(state, label){
@@ -486,10 +490,10 @@ function doLogin(){
   const id = $('loginId').value.trim(), pw = $('loginPw').value;
   if(!id || !pw){ $('loginMsg').textContent = '아이디와 비밀번호를 입력해주세요.'; return; }
   if(!fbReady){ $('loginMsg').textContent = '로그인 연동 준비 중입니다.'; return; }
-  firebase.auth().signInWithEmailAndPassword(id, pw)
+  firebase.auth().signInWithEmailAndPassword(idToEmail(id), pw)
     .catch(()=>{ $('loginMsg').textContent = '아이디 또는 비밀번호가 올바르지 않습니다.'; });
 }
-$('loginBtn').onclick = ()=>{ loggedIn ? (fbReady ? firebase.auth().signOut() : setAuthUI('out')) : openLogin(); };
+$('loginBtn').onclick = ()=>{ loggedIn ? firebase.auth().signOut() : openLogin(); };
 $('loginCancel').onclick = closeLogin;
 $('loginModal').onclick = e=>{ if(e.target.id==='loginModal') closeLogin(); };
 $('loginSubmit').onclick = doLogin;
@@ -500,9 +504,9 @@ if(fbReady){
     if(user){
       loggedIn = true; closeLogin();
       firebase.firestore().collection('users').doc(user.uid).get().then(doc=>{
-        const isAdmin = doc.exists && doc.data().admin === true;
-        setAuthUI(isAdmin ? 'admin' : 'in', user.displayName || user.email || '회원');
-      }).catch(()=> setAuthUI('in', user.displayName || user.email || '회원'));
+        const isAdmin = doc.exists && doc.data().isAdmin === true;
+        setAuthUI(isAdmin ? 'admin' : 'in', user.displayName || '회원');
+      }).catch(()=> setAuthUI('in', user.displayName || '회원'));
     } else { loggedIn = false; setAuthUI('out'); }
   });
 } else { setAuthUI('out'); }
@@ -781,7 +785,7 @@ function build(no){
       :'<div class="noevo">도감 설명이 없습니다</div>'}
     <h3>진화</h3>
     ${evoHTML(no)}
-  </div><div class="foot">포켓몬 도감 메이커</div></div>`;
+  </div><div class="foot">본 사이트는 팬이 만든 비공식 사이트로, 닌텐도, 게임프리크, 주식회사 포켓몬과는 어떠한 관계도 없습니다. Pokemon은 닌텐도 / Creatures Inc. / Game Freak Inc.의 상표입니다. 모든 게임 콘텐츠, 이미지, 상표는 각 권리자에게 귀속됩니다.</div></div>`;
 }
 
 function bind(el){
