@@ -38,8 +38,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun 
 .topbar .search input{flex:1;height:100%;border:0;background:transparent;color:#1a1a1a;font-size:14px;outline:none;min-width:0}
 .topbar .search input::placeholder{color:#adb0b6}
 .topbar .search .mgi{flex:0 0 auto;opacity:.9}
-.topbar .search .go{flex:0 0 auto;font-size:17px;font-weight:800;color:#E4515B;cursor:pointer;
- padding:0 3px 0 2px;opacity:.92;line-height:1;user-select:none}
+.topbar .search .go{flex:0 0 auto;cursor:pointer;padding:0 3px 0 2px;opacity:.92;user-select:none;display:block}
 .topbar .search .go:active{opacity:.55}
 /* ===== 검색 자동완성 ===== */
 #acbox{position:fixed;top:calc(50px + env(safe-area-inset-top));left:0;right:0;z-index:58;
@@ -57,8 +56,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun 
 .quizbar b{height:34px;min-width:36px;display:flex;align-items:center;justify-content:center;
  font-size:14px;font-weight:800;padding:0 8px;border-radius:9px;cursor:pointer;
  font-variant-numeric:tabular-nums;line-height:1;transition:transform .12s,filter .12s}
-.quizbar b[data-n="10"]{background:#FF7B92;color:#1a1a1a}
-.quizbar b[data-n="30"]{background:#DFC437;color:#1a1a1a}
+.quizbar b[data-n="10"]{background:#FF7B92;color:#fff}
+.quizbar b[data-n="30"]{background:#DFC437;color:#fff}
 .quizbar b[data-n="50"]{background:#27CF58;color:#fff}
 .quizbar b:active{transform:scale(.92);filter:brightness(.9)}
 .topbar .ic{width:34px;height:34px;flex-shrink:0}
@@ -104,11 +103,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun 
 #side .chips{display:flex;flex-wrap:wrap;gap:6px;padding:0 14px}
 #side .chip{background:var(--soft);border:1px solid var(--line);color:var(--text);
  border-radius:16px;padding:6px 12px;font-size:12px;cursor:pointer;white-space:nowrap;letter-spacing:-.3px}
-#side .chip.on{background:#E4515B;border-color:#E4515B;color:#fff;font-weight:700}
+#side .chip.on{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700}
 #side .sfoot{margin-top:auto;padding:16px 14px calc(20px + env(safe-area-inset-bottom))}
 #side .mgreet{font-size:12.5px;color:var(--sub);text-align:left;margin-bottom:10px;line-height:1.4}
 #side .mgreet.on{color:var(--accent);font-weight:700}
-#side .mgreet.admin{color:#E4515B;font-weight:700}
+#side .mgreet.admin{color:var(--accent);font-weight:700}
 #side .authrow{display:flex;gap:8px}
 #side .mbig{flex:1;background:var(--card);border:1px solid var(--line);color:var(--text);
  border-radius:12px;padding:12px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;
@@ -263,7 +262,8 @@ table.st td.dn{color:#b03a3a;background:#fdf3f3}
 #ov .tag{font-size:10px;font-weight:700;color:#1565c0;background:#eef4fc;padding:2px 7px;
  border-radius:999px;display:inline-block;margin-bottom:0}
 #ov .d{font-size:13px;line-height:1.65;color:#333;word-break:keep-all;margin-top:11px}
-#ov .c{margin-top:14px;text-align:right;font-size:13px;font-weight:800;color:var(--accent);cursor:pointer;padding:4px}
+#ov .ovbtnrow{margin-top:14px;text-align:right;display:flex;justify-content:flex-end;gap:14px}
+#ov .c{font-size:13px;font-weight:800;color:var(--accent);cursor:pointer;padding:4px}
 #toast{position:fixed;left:50%;bottom:56px;transform:translate(-50%,10px);z-index:300;
  background:rgba(20,20,20,.9);color:#fff;font-size:12.5px;font-weight:700;padding:10px 18px;
  border-radius:999px;opacity:0;pointer-events:none;transition:.2s;white-space:nowrap}
@@ -317,16 +317,17 @@ table.st td.dn{color:#b03a3a;background:#fdf3f3}
 .qzhead{font-size:12px;font-weight:800;color:var(--sub);font-variant-numeric:tabular-nums;margin-bottom:6px}
 .qzq{font-size:17px;font-weight:800;letter-spacing:-.3px;margin-bottom:16px;word-break:keep-all;text-align:left}
 .qzq1,.qzq2{max-width:380px;margin:0 auto 16px}
-.qzpoke{border:1px solid var(--line);border-radius:14px;max-width:380px;margin:0 auto 18px;padding:14px 0 12px}
+.qzpoke{background:#fafafa;border:1px solid var(--line);border-radius:14px;max-width:380px;margin:0 auto 18px;padding:14px 0 12px}
 .qzpic{width:150px;height:150px;object-fit:contain;margin:0 auto 6px;display:block}
 .qzpname{font-size:15px;font-weight:800;letter-spacing:-.3px}
-.qztypes{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:380px;margin:0 auto 22px}
-.qztypes b{height:40px;border-radius:10px;display:flex;align-items:center;padding-left:9px;
- font-size:13px;font-weight:800;cursor:pointer;letter-spacing:-.3px;border:2px solid transparent;
+.qztypes{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;max-width:380px;margin:0 auto 22px;position:relative}
+.qztypes b{border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+ gap:1px;padding:4px 1px 3px;
+ font-size:10.5px;font-weight:800;cursor:pointer;letter-spacing:-.2px;border:2px solid transparent;
  transition:transform .1s,border-color .12s,box-shadow .12s}
-.qztypes b .ic{width:26px;flex:0 0 auto;display:flex;align-items:center}
-.qztypes b .ic img{width:26px;height:26px;object-fit:contain;display:block}
-.qztypes b .tn{flex:1;text-align:center}
+.qztypes b .ic{width:40px;flex:0 0 auto;display:flex;align-items:center;justify-content:center}
+.qztypes b .ic img{width:40px;height:40px;object-fit:contain;display:block}
+.qztypes b .tn{text-align:center;color:#fff}
 .qztypes b:active{transform:scale(.94)}
 .qztypes b.sel{border-color:#fff;box-shadow:0 0 0 2px var(--tc);transform:scale(1.03)}
 .qzconfirm{display:block;margin:0 auto;min-width:140px;height:46px;border:0;border-radius:23px;
@@ -334,24 +335,32 @@ table.st td.dn{color:#b03a3a;background:#fdf3f3}
  box-shadow:0 4px 14px rgba(228,81,91,.35);transition:opacity .12s,transform .1s}
 .qzconfirm:active{transform:scale(.96)}
 .qzconfirm[disabled]{opacity:.35;pointer-events:none;box-shadow:none}
-.qzdesc{background:transparent;border:1px solid var(--line);border-radius:14px;padding:16px 18px;max-width:380px;margin:0 auto 22px;
+.qzdesc{background:#fafafa;border:1px solid var(--line);border-radius:14px;padding:16px 18px;max-width:380px;margin:0 auto 22px;
  text-align:left;font-size:14px;line-height:2}
 .qzdesc b{color:var(--accent);font-weight:800;margin-right:8px;display:inline-block;min-width:52px}
 .qzdesc .qzhw{display:flex}
 .qzdesc .qzhw .qzhalf{flex:1;display:flex;align-items:baseline}
-.qz2grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:380px;margin:0 auto}
+.qz2grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:380px;margin:0 auto;position:relative}
 .qzopt{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 6px 12px;
  cursor:pointer;transition:transform .1s}
 .qzopt:active{transform:scale(.95)}
+.qzopt.picked{border:2.5px solid #1a1a1a}
 .qzopt img{width:100%;max-width:88px;aspect-ratio:1;object-fit:contain;display:block;margin:0 auto}
 .qzopt .qzname{font-size:12.5px;font-weight:700;margin-top:4px;letter-spacing:-.3px;word-break:keep-all}
+.qznav{display:flex;align-items:center;justify-content:center;gap:14px;margin-bottom:6px}
+.qznav .qzhead{margin-bottom:0}
+.qznavbtn{cursor:pointer;flex:0 0 auto}
+.qznavbtn:active{opacity:.5}
+.qznavsp{width:15px;height:15px;flex:0 0 auto;display:inline-block}
+.qzbadge{position:absolute;top:4px;right:4px;width:22px;height:22px;border-radius:50%;
+ background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.25);display:flex;align-items:center;justify-content:center;z-index:2}
 .qzresult{position:fixed;inset:0;z-index:120;display:flex;align-items:center;justify-content:center;
  pointer-events:none;animation:qzpop .9s ease forwards}
 @keyframes qzpop{0%{opacity:0;transform:scale(.7)}12%{opacity:1;transform:scale(1)}78%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(1.05)}}
 </style></head><body>
 <div id="app">
   <div class="topbar">
-    <div class="search"><svg class="mgi" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="#E4515B" stroke-width="2" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"></circle><line x1="20" y1="20" x2="15.3" y2="15.3"></line></svg><input id="q" placeholder="" autocomplete="off"><span class="go" id="goBtn" title="검색한 포켓몬으로 이동">→</span></div>
+    <div class="search"><svg class="mgi" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="#1565c0" stroke-width="2" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"></circle><line x1="20" y1="20" x2="15.3" y2="15.3"></line></svg><input id="q" placeholder="" autocomplete="off"><svg class="go" id="goBtn" viewBox="0 0 24 24" width="20" height="20" title="검색한 포켓몬으로 이동"><polygon points="7,4 20,12 7,20" fill="#FDE52D" stroke="#FF934B" stroke-width="2" stroke-linejoin="round"></polygon></svg></div>
     <div class="quizbar" id="quizbar"><b data-n="10">10</b><b data-n="30">30</b><b data-n="50">50</b></div>
     <div class="ic hamb-spacer"></div>
   </div>
@@ -379,7 +388,8 @@ table.st td.dn{color:#b03a3a;background:#fdf3f3}
 <div id="backfab"><button id="backBtn" title="메인으로" aria-label="메인으로"><svg viewBox="0 0 24 24" width="27" height="27" fill="none" stroke="#fff" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6 L4.5 10.5 L9 15"></path><path d="M4.5 10.5 H14.5 A5 5 0 0 1 14.5 20.5 H8"></path></svg></button></div>
 <div id="dov"></div>
 <div id="ov"><div class="box"><div class="t" id="ovT"></div><div id="ovTag"></div>
-  <div class="d" id="ovD"></div><div class="c" id="ovC">닫기</div></div></div>
+  <div class="d" id="ovD"></div>
+  <div class="ovbtnrow"><span class="c" id="ovR" style="display:none">결과 확인</span><span class="c" id="ovC">닫기</span></div></div></div>
 <div id="toast"></div>
 <div id="imgov"><img id="imgovImg" src="" alt=""></div>
 <div id="loginModal" class="modal">
@@ -422,6 +432,9 @@ function vbadge(v){ const c=VCOL[v]; return c
  ? `<b style="background:${c};color:${vtext(c)};border-color:rgba(0,0,0,.14)">${esc(v)}</b>`
  : `<b>${esc(v)}</b>`; }
 const $ = id => document.getElementById(id);
+/* 우클릭(컨텍스트 메뉴)·드래그 전체 페이지 금지 */
+document.addEventListener('contextmenu', e=>e.preventDefault());
+document.addEventListener('dragstart', e=>e.preventDefault());
 /* ── 이미지 경로 ────────────────────────────────────────────
    GitHub Pages(현재) : 'https://iruroda.github.io/pokedexmaker/dex_img'
    로컬 폴더로 되돌리려면: './dex_img'  (HTML 옆에 dex_img 폴더 필요)
@@ -785,7 +798,7 @@ function build(no){
       :'<div class="noevo">도감 설명이 없습니다</div>'}
     <h3>진화</h3>
     ${evoHTML(no)}
-  </div><div class="foot">본 사이트는 팬이 만든 비공식 사이트로, 닌텐도, 게임프리크, 주식회사 포켓몬과는 어떠한 관계도 없습니다. Pokemon은 닌텐도 / Creatures Inc. / Game Freak Inc.의 상표입니다. 모든 게임 콘텐츠, 이미지, 상표는 각 권리자에게 귀속됩니다.</div></div>`;
+  </div></div>`;
 }
 
 function bind(el){
@@ -801,6 +814,7 @@ function bind(el){
     $('ovT').textContent=nm;
     $('ovTag').innerHTML=b.dataset.h==='1'?'<span class="tag">숨겨진 특성</span>':'';
     $('ovD').textContent=D.ab[nm]||'설명 준비 중입니다.';
+    quizEndFlag=false; $('ovR').style.display='none';
     $('ov').classList.add('on'); });
   const pic=el.querySelector('.hero .pic img');
   if(pic){
@@ -824,7 +838,10 @@ function bind(el){
 })();
 function closeOv(){ $('ov').classList.remove('on');
   if(quizEndFlag){ quizEndFlag=false; quiz=null; closeDetail(); } }
-$('ov').onclick=e=>{if(e.target===$('ov')||e.target.id==='ovC')closeOv();};
+function reviewQuiz(){ $('ov').classList.remove('on'); quizEndFlag=false;
+  if(!quiz) return; quiz.view=0; renderQ(); }
+$('ov').onclick=e=>{ if(e.target===$('ov')||e.target.id==='ovC') closeOv();
+  else if(e.target.id==='ovR') reviewQuiz(); };
 $('imgov').onclick=()=>$('imgov').classList.remove('on');
 document.addEventListener('keydown',e=>{
   if(e.key==='Escape'){
@@ -848,65 +865,99 @@ function startQuiz(n){
   closeAC(); closeSide();
   const pool=shuffle(quizPool().slice());
   const picks=pool.slice(0,Math.min(n,pool.length));
-  quiz={ n:picks.length, idx:0, correct:0, list:picks.map(p=>({p,type:Math.random()<0.5?1:2})), sel:[], busy:false };
+  quiz={ n:picks.length, answered:0, view:0, correct:0, busy:false, sel:[],
+    list:picks.map(p=>({p,type:Math.random()<0.5?1:2,answered:false,ok:null,userSel:null,liveSel:[],options:null,pickNo:null})) };
   cur=null; dexOpen=false; pokeAnim='';
   const el=$('detail'); el.innerHTML='<div class="dwrap qzwrap" id="qzwrap"></div>';
   el.scrollTop=0; el.classList.add('on'); $('backfab').classList.add('on');
   document.body.style.overflow='hidden';
   renderQ();
 }
-function currentQ(){ return quiz.list[quiz.idx]; }
+function qzGoPrev(){ if(!quiz||quiz.busy||quiz.view<=0) return; quiz.view--; renderQ(); }
+function qzGoNext(){ if(!quiz||quiz.busy||quiz.view>=Math.min(quiz.answered,quiz.n-1)) return; quiz.view++; renderQ(); }
+function qzNavHTML(){
+  const canPrev=quiz.view>0, canNext=quiz.view<Math.min(quiz.answered,quiz.n-1);
+  return `<div class="qznav">
+    ${canPrev?'<svg class="qznavbtn" id="qzprev" viewBox="0 0 24 24" width="15" height="15"><polygon points="17,4 6,12 17,20" fill="var(--sub)"></polygon></svg>':'<span class="qznavsp"></span>'}
+    <div class="qzhead">${quiz.view+1} / ${quiz.n}</div>
+    ${canNext?'<svg class="qznavbtn" id="qznext" viewBox="0 0 24 24" width="15" height="15"><polygon points="7,4 18,12 7,20" fill="var(--sub)"></polygon></svg>':'<span class="qznavsp"></span>'}
+  </div>`;
+}
+function qzBadgeHTML(review, ok){
+  if(!review) return '';
+  return ok
+    ? '<div class="qzbadge"><svg viewBox="0 0 24 24" width="15" height="15"><circle cx="12" cy="12" r="9" fill="none" stroke="#1565c0" stroke-width="3.4"/></svg></div>'
+    : '<div class="qzbadge"><svg viewBox="0 0 24 24" width="15" height="15"><line x1="6" y1="6" x2="18" y2="18" stroke="#e53935" stroke-width="3.4" stroke-linecap="round"/><line x1="18" y1="6" x2="6" y2="18" stroke="#e53935" stroke-width="3.4" stroke-linecap="round"/></svg></div>';
+}
 function renderQ(){
-  quiz.sel=[]; quiz.busy=false;
-  const q=currentQ(), p=q.p, f=p.fm[0];
+  const q=quiz.list[quiz.view], p=q.p, f=p.fm[0];
+  const review=quiz.view<quiz.answered;
   const wrap=$('qzwrap'); if(!wrap) return;
+  quiz.busy=false;
   if(q.type===1){
-    wrap.innerHTML=`<div class="qzhead">${quiz.idx+1} / ${quiz.n}</div>
+    quiz.sel = review ? (q.userSel||[]) : (q.liveSel||[]);
+    wrap.innerHTML=`${qzNavHTML()}
       <div class="qzq qzq1">아래 포켓몬의 타입은?</div>
       <div class="qzpoke">
-        <img class="qzpic" src="${LG(p.no,f.k)}" alt="${esc(p.nm)}">
+        <img class="qzpic" src="${TH(p.no,f.k)}" alt="${esc(p.nm)}">
         <div class="qzpname">${esc(p.nm)}</div>
       </div>
-      <div class="qztypes" id="qztypes">${QTYPES.map(t=>{ const c=D.tc[t]||'#999';
-        return `<b data-t="${esc(t)}" style="background:${c};color:${vtext(c)};--tc:${c}">${TI[t]?`<span class="ic"><img src="${TI[t]}" alt=""></span>`:''}<span class="tn">${esc(t)}</span></b>`; }).join('')}</div>
-      <button class="qzconfirm" id="qzconfirm" disabled>결정</button>`;
-    $('qztypes').onclick=e=>{ const b=e.target.closest('b'); if(!b||quiz.busy) return;
-      const t=b.dataset.t, i=quiz.sel.indexOf(t);
-      if(i>=0){ quiz.sel.splice(i,1); b.classList.remove('sel'); }
-      else{
-        if(quiz.sel.length>=2){
-          const oldT=quiz.sel.shift();
-          const oldBtn=[...$('qztypes').children].find(x=>x.dataset.t===oldT);
-          if(oldBtn) oldBtn.classList.remove('sel');
+      <div class="qztypes" id="qztypes">${qzBadgeHTML(review,q.ok)}${QTYPES.map(t=>{ const c=D.tc[t]||'#999';
+        const sel=quiz.sel.includes(t);
+        return `<b data-t="${esc(t)}" class="${sel?'sel':''}" style="background:${c};color:${vtext(c)};--tc:${c}">${TI[t]?`<span class="ic"><img src="${TI[t]}" alt=""></span>`:''}<span class="tn">${esc(t)}</span></b>`; }).join('')}</div>
+      ${review?'':'<button class="qzconfirm" id="qzconfirm" disabled>결정</button>'}`;
+    if(!review){
+      $('qzconfirm').disabled=quiz.sel.length===0;
+      $('qztypes').onclick=e=>{ const b=e.target.closest('b'); if(!b||quiz.busy) return;
+        const t=b.dataset.t, i=quiz.sel.indexOf(t);
+        if(i>=0){ quiz.sel.splice(i,1); b.classList.remove('sel'); }
+        else{
+          if(quiz.sel.length>=2){
+            const oldT=quiz.sel.shift();
+            const oldBtn=[...$('qztypes').children].find(x=>x.dataset.t===oldT);
+            if(oldBtn) oldBtn.classList.remove('sel');
+          }
+          quiz.sel.push(t); b.classList.add('sel');
         }
-        quiz.sel.push(t); b.classList.add('sel');
-      }
-      $('qzconfirm').disabled=quiz.sel.length===0; };
-    $('qzconfirm').onclick=()=>{ if(quiz.busy||quiz.sel.length===0) return;
-      const ans=f.ty; const ok=quiz.sel.length===ans.length && quiz.sel.every(t=>ans.includes(t));
-      finishQ(ok); };
+        q.liveSel=quiz.sel.slice();
+        $('qzconfirm').disabled=quiz.sel.length===0; };
+      $('qzconfirm').onclick=()=>{ if(quiz.busy||quiz.sel.length===0) return;
+        const ans=f.ty; const ok=quiz.sel.length===ans.length && quiz.sel.every(t=>ans.includes(t));
+        q.userSel=quiz.sel.slice(); finishQ(q,ok); };
+    }
   } else {
-    const hv=qNum(f.h), wv=qNum(f.w);
-    const others=quizPool().filter(x=>x.no!==p.no);
-    const close=shuffle(others.filter(x=>{ const xf=x.fm[0]; const dh=Math.abs(qNum(xf.h)-hv), dw=Math.abs(qNum(xf.w)-wv); return dh<=0.5||dw<=10; }));
-    const rest=shuffle(others.filter(x=>!close.includes(x)));
-    let decoy=close.slice(0,Math.min(2,close.length));
-    for(const c of close.slice(decoy.length)){ if(decoy.length>=5) break; decoy.push(c); }
-    for(const c of rest){ if(decoy.length>=5) break; decoy.push(c); }
-    decoy=decoy.slice(0,5);
-    const options=shuffle([{p,ok:true},...decoy.map(x=>({p:x,ok:false}))]);
-    wrap.innerHTML=`<div class="qzhead">${quiz.idx+1} / ${quiz.n}</div>
+    if(!q.options){
+      const hv=qNum(f.h), wv=qNum(f.w);
+      const others=quizPool().filter(x=>x.no!==p.no);
+      const close=shuffle(others.filter(x=>{ const xf=x.fm[0]; const dh=Math.abs(qNum(xf.h)-hv), dw=Math.abs(qNum(xf.w)-wv); return dh<=0.5||dw<=10; }));
+      const rest=shuffle(others.filter(x=>!close.includes(x)));
+      let decoy=close.slice(0,Math.min(2,close.length));
+      for(const c of close.slice(decoy.length)){ if(decoy.length>=5) break; decoy.push(c); }
+      for(const c of rest){ if(decoy.length>=5) break; decoy.push(c); }
+      decoy=decoy.slice(0,5);
+      q.options=shuffle([{no:p.no,k:f.k,nm:p.nm,ok:true},...decoy.map(x=>({no:x.no,k:x.fm[0].k,nm:x.nm,ok:false}))]);
+    }
+    wrap.innerHTML=`${qzNavHTML()}
       <div class="qzq qzq2">아래 설명에 해당하는 포켓몬은?</div>
       <div class="qzdesc"><div><b>분류</b>${esc(f.ct||'')}</div>
         <div class="qzhw"><div class="qzhalf"><b>키</b>${fmtH(f.h,f)}</div><div class="qzhalf"><b>몸무게</b>${fmtW(f.w,f)}</div></div></div>
-      <div class="qz2grid" id="qz2grid">${options.map(o=>
-        `<div class="qzopt" data-ok="${o.ok?1:0}"><img src="${TH(o.p.no,o.p.fm[0].k)}" alt="${esc(o.p.nm)}"><div class="qzname">${esc(o.p.nm)}</div></div>`).join('')}</div>`;
-    $('qz2grid').onclick=e=>{ const c=e.target.closest('.qzopt'); if(!c||quiz.busy) return; finishQ(c.dataset.ok==='1'); };
+      <div class="qz2grid" id="qz2grid">${qzBadgeHTML(review,q.ok)}${q.options.map(o=>
+        `<div class="qzopt${review&&o.no===q.pickNo?' picked':''}" data-no="${o.no}" data-ok="${o.ok?1:0}"><img src="${TH(o.no,o.k)}" alt="${esc(o.nm)}"><div class="qzname">${esc(o.nm)}</div></div>`).join('')}</div>`;
+    if(!review){
+      $('qz2grid').onclick=e=>{ const c=e.target.closest('.qzopt'); if(!c||quiz.busy) return;
+        q.pickNo=+c.dataset.no; finishQ(q,c.dataset.ok==='1'); };
+    }
   }
+  const pb=$('qzprev'); if(pb) pb.onclick=qzGoPrev;
+  const nb=$('qznext'); if(nb) nb.onclick=qzGoNext;
 }
-function finishQ(ok){ quiz.busy=true; if(ok) quiz.correct++; showResult(ok);
+function finishQ(q,ok){
+  quiz.busy=true; q.answered=true; q.ok=ok; quiz.answered++;
+  if(ok) quiz.correct++;
+  showResult(ok);
   clearTimeout(quizT);
-  quizT=setTimeout(()=>{ quiz.idx++; if(quiz.idx>=quiz.n) endQuiz(); else renderQ(); },1100); }
+  quizT=setTimeout(()=>{ quiz.view=quiz.answered; if(quiz.answered>=quiz.n) endQuiz(); else renderQ(); },1100);
+}
 function showResult(ok){
   const d=document.createElement('div'); d.className='qzresult';
   d.innerHTML = ok
@@ -920,10 +971,20 @@ function showResult(ok){
       +'<line x1="180" y1="20" x2="20" y2="180" stroke="#e53935" stroke-width="20" stroke-linecap="round"/></svg>';
   $('detail').appendChild(d); setTimeout(()=>d.remove(),950);
 }
+/* 이미 푼 문제 구간에서 좌우 스와이프로도 이동 가능 (리스너는 #detail에 1회만 등록) */
+(function(){ const el=$('detail'); let qx0=null,qy0=null;
+  el.addEventListener('touchstart',e=>{qx0=e.touches[0].clientX;qy0=e.touches[0].clientY},{passive:true});
+  el.addEventListener('touchend',e=>{
+    if(qx0===null||!quiz||!el.classList.contains('on')) return;
+    const dx=e.changedTouches[0].clientX-qx0, dy=e.changedTouches[0].clientY-qy0; qx0=null;
+    if(Math.abs(dx)<60||Math.abs(dx)<Math.abs(dy)*1.4) return;
+    if(dx<0) qzGoNext(); else qzGoPrev();
+  },{passive:true});
+})();
 function endQuiz(){
   $('ovT').textContent='종료'; $('ovTag').innerHTML='';
   $('ovD').textContent=`${quiz.n} 문제 중 ${quiz.correct} 문제를 맞히셨습니다.`;
-  quizEndFlag=true; $('ov').classList.add('on');
+  quizEndFlag=true; $('ovR').style.display='inline-block'; $('ov').classList.add('on');
 }
 
 /* 스크롤바 자동 숨김: 스크롤 중에만 thumb 표시 */
