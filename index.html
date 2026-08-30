@@ -276,14 +276,17 @@ table.st td.dn{color:#b03a3a;background:#fdf3f3}
 /* ===== 상세 우하단 뒤로가기(메인) 플로팅 버튼 ===== */
 #backfab{position:fixed;left:0;right:0;bottom:calc(20px + env(safe-area-inset-bottom));z-index:70;
  max-width:520px;margin:0 auto;padding:0 18px;display:none;
- flex-direction:row;align-items:center;justify-content:flex-end;gap:10px;pointer-events:none}
+ flex-direction:row;align-items:center;justify-content:flex-end;gap:10px;pointer-events:none;
+ opacity:1;transition:opacity .22s ease}
 #backfab.on{display:flex}
+#backfab.on.fade{opacity:0}
+#backfab.fade #backBtn,#backfab.fade #retryFab{pointer-events:none}
 #backBtn{pointer-events:auto;width:54px;height:54px;border-radius:50%;border:0;padding:0;
- background:#E4515B;cursor:pointer;box-shadow:0 5px 16px rgba(0,0,0,.3);
+ background:#E4515B;cursor:pointer;box-shadow:0 3px 8px rgba(0,0,0,.25);
  display:inline-flex;align-items:center;justify-content:center;transition:transform .12s,background .15s;flex:0 0 auto}
 #backBtn:active{background:#C2454D;transform:scale(.92)}
 #retryFab{pointer-events:auto;min-width:84px;height:54px;border-radius:16px;border:0;padding:4px 12px;
- background:var(--accent);color:#fff;cursor:pointer;box-shadow:0 5px 16px rgba(0,0,0,.3);
+ background:var(--accent);color:#fff;cursor:pointer;box-shadow:0 3px 8px rgba(0,0,0,.25);
  display:none;flex-direction:column;align-items:center;justify-content:center;gap:1px;
  font-size:11px;font-weight:800;line-height:1.3;letter-spacing:0;white-space:nowrap;transition:transform .12s;flex:0 0 auto}
 #retryFab.show{display:flex}
@@ -336,7 +339,7 @@ table.st td.dn{color:#b03a3a;background:#fdf3f3}
 .qztypes{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;max-width:380px;margin:0 auto 22px;position:relative}
 .qztypes b{border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;
  gap:1px;padding:4px 1px 3px;
- font-size:10.5px;font-weight:800;cursor:pointer;letter-spacing:-.2px;border:2px solid transparent;
+ font-size:12px;font-weight:800;cursor:pointer;letter-spacing:-.2px;border:2px solid transparent;
  transition:transform .1s,border-color .12s,box-shadow .12s}
 .qztypes b .ic{width:40px;flex:0 0 auto;display:flex;align-items:center;justify-content:center}
 .qztypes b .ic img{width:40px;height:40px;object-fit:contain;display:block}
@@ -344,8 +347,8 @@ table.st td.dn{color:#b03a3a;background:#fdf3f3}
 .qztypes b:active{transform:scale(.94)}
 .qztypes b.sel{border-color:#fff;box-shadow:0 0 0 2px var(--tc);transform:scale(1.03)}
 .qztypes.review b{cursor:default}
-.qzconfirm{display:block;margin:0 auto;min-width:140px;height:46px;border:2px solid var(--accent);border-radius:23px;
- background:#fff;color:var(--accent);font-size:15px;font-weight:800;cursor:pointer;letter-spacing:-.3px;
+.qzconfirm{display:block;margin:0 auto;min-width:140px;height:46px;border:1px solid var(--line);border-radius:14px;
+ background:var(--card);color:var(--text);font-size:15px;font-weight:800;cursor:pointer;letter-spacing:-.3px;
  transition:opacity .12s,transform .1s}
 .qzconfirm:active{transform:scale(.96)}
 .qzconfirm[disabled]{opacity:.35;pointer-events:none;box-shadow:none}
@@ -370,11 +373,12 @@ table.st td.dn{color:#b03a3a;background:#fdf3f3}
 .qzbadge{position:absolute;top:2px;right:6px;z-index:5;line-height:0}
 .qzresult{position:fixed;inset:0;z-index:120;display:flex;align-items:center;justify-content:center;
  pointer-events:none;animation:qzpop .9s ease forwards}
+.qzwrap.qzchecking .qzopt,.qzwrap.qzchecking .qztypes b,.qzwrap.qzchecking .qzconfirm{pointer-events:none}
 @keyframes qzpop{0%{opacity:0;transform:scale(.7)}12%{opacity:1;transform:scale(1)}78%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(1.05)}}
 </style></head><body>
 <div id="app">
   <div class="topbar">
-    <div class="search"><svg class="mgi" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="#1565c0" stroke-width="2" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"></circle><line x1="20" y1="20" x2="15.3" y2="15.3"></line></svg><input id="q" placeholder="" autocomplete="off"><svg class="go" id="goBtn" viewBox="0 0 24 24" width="20" height="20" title="검색한 포켓몬으로 이동"><polygon points="7,4 20,12 7,20" fill="#FDE52D"></polygon></svg></div>
+    <div class="search"><svg class="mgi" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="#1565c0" stroke-width="2" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"></circle><line x1="20" y1="20" x2="15.3" y2="15.3"></line></svg><input id="q" placeholder="" autocomplete="off"><svg class="go" id="goBtn" viewBox="0 0 24 24" width="40" height="40" title="검색한 포켓몬으로 이동"><polygon points="7,4 20,12 7,20" fill="#FDE52D"></polygon></svg></div>
     <div class="quizbar" id="quizbar"><b data-n="10">10</b><b data-n="30">30</b><b data-n="50">50</b></div>
     <div class="ic hamb-spacer"></div>
   </div>
@@ -884,7 +888,7 @@ function startRetryQuiz(){
   if(!wrong.length) return;
   clearTimeout(quizT);
   quiz={ n:wrong.length, answered:0, view:0, correct:0, busy:false, sel:[],
-    list:wrong.map(q=>({p:q.p,type:Math.random()<0.5?1:2,answered:false,ok:null,userSel:null,liveSel:[],options:null,pickNo:null})) };
+    list:wrong.map(q=>({p:q.p,type:q.type,answered:false,ok:null,userSel:null,liveSel:[],options:q.options,pickNo:null})) };
   renderQ();
 }
 function updateRetryFab(){
@@ -980,6 +984,7 @@ function renderQ(dir){
   const review=quiz.view<quiz.answered;
   const wrap=$('qzwrap'); if(!wrap) return;
   quiz.busy=false;
+  wrap.classList.remove('qzchecking');
   let html;
   if(q.type===1){
     quiz.sel = review ? (q.userSel||[]) : (q.liveSel||[]);
@@ -1013,7 +1018,7 @@ function renderQ(dir){
         `<div class="qzopt${review&&o.no===q.pickNo?' picked':''}" data-no="${o.no}" data-ok="${o.ok?1:0}"><img src="${TH(o.no,o.k)}" alt="${esc(o.nm)}"><div class="qzname">${esc(o.nm)}</div></div>`).join('')}</div></div>`;
   }
   if(dir && wrap.children.length){
-    const w=wrap.getBoundingClientRect().width;
+    const w=wrap.firstElementChild.getBoundingClientRect().width;
     const oldHTML=wrap.innerHTML;
     quiz.busy=true;
     const track=document.createElement('div'); track.className='qztrack';
@@ -1026,11 +1031,13 @@ function renderQ(dir){
     track.style.transition='transform .28s cubic-bezier(.33,0,.2,1)';
     requestAnimationFrame(()=>{ track.style.transform = dir==='qznx' ? `translateX(-${w}px)` : 'translateX(0)'; });
     clearTimeout(qzAnimT);
-    qzAnimT=setTimeout(()=>{
+    let done=false;
+    const finalize=()=>{ if(done) return; done=true; clearTimeout(qzAnimT);
       wrap.innerHTML=html;
       quiz.busy=false;
-      qzBind(q,p,f,review);
-    },300);
+      qzBind(q,p,f,review); };
+    track.addEventListener('transitionend',e=>{ if(e.target===track&&e.propertyName==='transform') finalize(); },{once:true});
+    qzAnimT=setTimeout(finalize,340);
   } else {
     wrap.innerHTML=html;
     qzBind(q,p,f,review);
@@ -1038,6 +1045,7 @@ function renderQ(dir){
 }
 function finishQ(q,ok){
   quiz.busy=true; q.answered=true; q.ok=ok; quiz.answered++;
+  const qw=$('qzwrap'); if(qw) qw.classList.add('qzchecking');
   if(ok) quiz.correct++;
   showResult(ok);
   clearTimeout(quizT);
@@ -1082,5 +1090,9 @@ function hookScroll(target,classEl){ let t;
     clearTimeout(t); t=setTimeout(()=>classEl.classList.remove('scrolling'),650); },{passive:true}); }
 hookScroll(window,document.documentElement);
 hookScroll($('detail'),$('detail'));
+/* 상세/퀴즈 페이지 스크롤 중 하단 플로팅 버튼 부드럽게 숨김, 멈추면 잠시 후 다시 표시 */
+(function(){ const bf=$('backfab'); let t;
+  $('detail').addEventListener('scroll',()=>{ bf.classList.add('fade');
+    clearTimeout(t); t=setTimeout(()=>bf.classList.remove('fade'),550); },{passive:true}); })();
 renderGrid();
 </script></body></html>
