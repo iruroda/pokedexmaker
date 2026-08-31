@@ -13,7 +13,9 @@
  --bg:#f2f3f5; --card:#fff; --line:#e6e6e6; --soft:#f0f2f5;
  --text:#1a1a1a; --sub:#8a8f96;
 }
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-user-drag:none;user-drag:none}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-user-drag:none;user-drag:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+input,textarea{-webkit-user-select:text;user-select:text;-webkit-touch-callout:default}
+img,svg{-webkit-user-drag:none;user-drag:none;-webkit-touch-callout:none}
 html,body{margin:0;padding:0;overscroll-behavior-y:contain}
 body{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",sans-serif;
  background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased}
@@ -285,10 +287,10 @@ table.st td.dn{color:#b03a3a;background:#fdf3f3}
  background:#E4515B;cursor:pointer;box-shadow:0 3px 8px rgba(0,0,0,.25);
  display:inline-flex;align-items:center;justify-content:center;transition:transform .12s,background .15s;flex:0 0 auto}
 #backBtn:active{background:#C2454D;transform:scale(.92)}
-#retryFab{pointer-events:auto;min-width:84px;height:54px;border-radius:16px;border:0;padding:4px 12px;
+#retryFab{pointer-events:auto;min-width:84px;height:54px;border-radius:27px;border:0;padding:4px 16px;
  background:var(--accent);color:#fff;cursor:pointer;box-shadow:0 3px 8px rgba(0,0,0,.25);
  display:none;flex-direction:column;align-items:center;justify-content:center;gap:1px;
- font-size:11px;font-weight:800;line-height:1.3;letter-spacing:0;white-space:nowrap;transition:transform .12s;flex:0 0 auto}
+ font-size:13px;font-weight:800;line-height:1.3;letter-spacing:0;white-space:nowrap;transition:transform .12s;flex:0 0 auto}
 #retryFab.show{display:flex}
 #retryFab:active{transform:scale(.92)}
 #backfab svg{display:block}
@@ -328,7 +330,7 @@ table.st td.dn{color:#b03a3a;background:#fdf3f3}
 /* ===== 퀴즈 ===== */
 .qzwrap{padding:22px 18px calc(20px + env(safe-area-inset-bottom));text-align:center;min-height:100%;position:relative;overflow-x:hidden}
 .qzcol{max-width:380px;margin:0 auto;position:relative}
-.qztrack{display:flex;align-items:flex-start;will-change:transform;-webkit-backface-visibility:hidden;backface-visibility:hidden}
+.qztrack{display:flex;align-items:flex-start;overflow:hidden;will-change:transform;-webkit-backface-visibility:hidden;backface-visibility:hidden}
 .qzpane{flex:0 0 auto;box-sizing:border-box;-webkit-backface-visibility:hidden;backface-visibility:hidden}
 .qzhead{font-size:12px;font-weight:800;color:var(--sub);font-variant-numeric:tabular-nums;margin-bottom:6px}
 .qzq{font-size:17px;font-weight:800;letter-spacing:-.3px;margin-bottom:16px;word-break:keep-all;text-align:left}
@@ -340,7 +342,7 @@ table.st td.dn{color:#b03a3a;background:#fdf3f3}
 .qztypes b{border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;
  gap:1px;padding:4px 1px 3px;
  font-size:12px;font-weight:800;cursor:pointer;letter-spacing:-.2px;border:2px solid transparent;transform:scale(.9);
- transition:transform .1s,border-color .12s,box-shadow .12s}
+ transition:border-color .18s ease,box-shadow .18s ease}
 .qztypes b .ic{width:40px;flex:0 0 auto;display:flex;align-items:center;justify-content:center}
 .qztypes b .ic img{width:40px;height:40px;object-fit:contain;display:block}
 .qztypes b .tn{text-align:center;color:#fff}
@@ -409,7 +411,7 @@ table.st td.dn{color:#b03a3a;background:#fdf3f3}
   <div class="d" id="ovD"></div>
   <div class="ovbtnrow"><div class="ovbox" id="ovR" style="display:none">결과 확인하기</div><div class="ovbox" id="ovX" style="display:none">틀린 문제만 다시 풀기</div><div class="ovbox" id="ovC">닫기</div></div></div></div>
 <div id="toast"></div>
-<div id="imgov"><img id="imgovImg" src="" alt=""></div>
+<div id="imgov"><img id="imgovImg" src="" alt="" draggable="false"></div>
 <div id="loginModal" class="modal">
   <div class="box">
     <h2 id="loginTitle">로그인</h2>
@@ -577,7 +579,7 @@ function renderGrid(){
   if(gen){ const[a,b]=D.gn[gen-1]; list=list.filter(p=>p.no>=a&&p.no<=b); }
   $('grid').innerHTML = list.length ? list.map(p=>
     `<div class="cell" data-no="${p.no}">
-      <img src="${TH(p.no,lastForm[p.no])}" alt="${esc(p.nm)}" loading="lazy" decoding="async">
+      <img src="${TH(p.no,lastForm[p.no])}" alt="${esc(p.nm)}" loading="lazy" decoding="async" draggable="false">
       <div class="no">No.${pad(p.no)}</div><div class="nm">${esc(p.nm)}</div></div>`).join('')
     : '<div class="empty" style="grid-column:1/-1">포켓몬이 없어요</div>';
   gridDirty=false;
@@ -598,7 +600,7 @@ function renderAC(){
   const list=acMatch(f);
   box.innerHTML = list.length
     ? list.map(p=>`<div class="acit" data-no="${p.no}">
-        <img src="${TH(p.no)}" alt="" loading="lazy"><span class="acno">No.${pad(p.no)}</span>
+        <img src="${TH(p.no)}" alt="" loading="lazy" draggable="false"><span class="acno">No.${pad(p.no)}</span>
         <span class="acnm">${esc(p.nm)}</span></div>`).join('')
     : '<div class="acempty">검색 결과가 없어요</div>';
   box.classList.add('on');
@@ -724,7 +726,7 @@ const REPLACE_BASE = {128:1,863:1,865:1,866:1,109:1,110:1,439:1,122:1,
 function lbOf(t,n){ return n.lb!==undefined ? n.lb : ((n.k&&n.k!=='01'&&t)?t.lb:''); }
 function evoNode(no,k,cur,lb){
   const nm=(M[no]?M[no].nm:no)+(lb?`(${lb})`:'');
-  return `<div class="evoi ${cur?'cur':''}" data-go="${no}"><img src="${TH(no,k)}" alt="" loading="lazy"><div class="n">${esc(nm)}</div></div>`;
+  return `<div class="evoi ${cur?'cur':''}" data-go="${no}"><img src="${TH(no,k)}" alt="" loading="lazy" draggable="false"><div class="n">${esc(nm)}</div></div>`;
 }
 function renderChain(ch,cur,t){
   let root=ch.findIndex(n=>n.p===undefined||n.p<0); if(root<0)root=0;
@@ -755,7 +757,7 @@ function evoHTML(no){
 
 function typeHTML(ty){
   return ty.map(t=>`<span style="background:${D.tc[t]||'#999'}">${
-    TI[t]?`<img src="${TI[t]}" alt="">`:''}<span class="tn">${esc(t)}</span></span>`).join('');
+    TI[t]?`<img src="${TI[t]}" alt="" draggable="false">`:''}<span class="tn">${esc(t)}</span></span>`).join('');
 }
 
 /* 성별 상태: 각 아이콘을 on(컬러)/gray(회색)/off(숨김)으로 반환
@@ -782,7 +784,7 @@ function genderState(p,f){
 }
 /* 성별 아이콘 렌더: 원형 아이콘, off=숨김 / gray=회색 */
 function genderHTML(p,f){ const s=genderState(p,f); if(!s) return '';
-  const ic=(src,st)=> st==='off' ? '' : `<img class="gi${st==='gray'?' gr':''}" src="${src}" alt="">`;
+  const ic=(src,st)=> st==='off' ? '' : `<img class="gi${st==='gray'?' gr':''}" src="${src}" alt="" draggable="false">`;
   return ic(GM_ICON,s.m)+ic(GF_ICON,s.f); }
 /* 메가진화 표시명: 폼 라벨(메가/메가X…) 대신 '메가○○'를 이름 자체로 */
 function megaName(p,f){
@@ -817,7 +819,7 @@ function build(no){
     <div class="pic">
       ${multi?`<div class="fmcount">${fi+1} / ${p.fm.length}</div>
       <div class="fmb l" id="fmL">◀</div>`:''}
-      <img class="heroimg" src="${TH(p.no,f.k)}" data-lg="${LG(p.no,f.k)}" alt="${esc(p.nm)}" decoding="async">
+      <img class="heroimg" src="${TH(p.no,f.k)}" data-lg="${LG(p.no,f.k)}" alt="${esc(p.nm)}" decoding="async" draggable="false">
       ${multi?`<div class="fmb r" id="fmR">▶</div>`:''}
     </div>
     <div class="info">
@@ -992,12 +994,12 @@ function renderQ(dir){
     html=`<div class="qzcol">${qzNavHTML()}${qzBadgeHTML(review,q.ok)}
       <div class="qzq qzq1">아래 포켓몬의 타입은?</div>
       <div class="qzpoke">
-        <img class="qzpic" src="${TH(p.no,f.k)}" alt="${esc(p.nm)}">
+        <img class="qzpic" src="${TH(p.no,f.k)}" alt="${esc(p.nm)}" draggable="false">
         <div class="qzpname">${esc(p.nm)}</div>
       </div>
       <div class="qztypes${review?' review':''}" id="qztypes">${QTYPES.map(t=>{ const c=D.tc[t]||'#999';
         const sel=quiz.sel.includes(t);
-        return `<b data-t="${esc(t)}" class="${sel?'sel':''}" style="background:${c};color:${vtext(c)};--tc:${c}">${TI[t]?`<span class="ic"><img src="${TI[t]}" alt=""></span>`:''}<span class="tn">${esc(t)}</span></b>`; }).join('')}</div>
+        return `<b data-t="${esc(t)}" class="${sel?'sel':''}" style="background:${c};color:${vtext(c)};--tc:${c}">${TI[t]?`<span class="ic"><img src="${TI[t]}" alt="" draggable="false"></span>`:''}<span class="tn">${esc(t)}</span></b>`; }).join('')}</div>
       ${review?'':'<button class="qzconfirm" id="qzconfirm" disabled>결&nbsp;&nbsp;정</button>'}</div>`;
   } else {
     if(!q.options){
@@ -1016,18 +1018,24 @@ function renderQ(dir){
       <div class="qzdesc">${esc(f.ct||'')}
         <div class="qzhw"><div class="qzhalf"><b>키</b>${fmtH(f.h,f)}</div><div class="qzhalf"><b>몸무게</b>${fmtW(f.w,f)}</div></div></div>
       <div class="qz2grid${review?' review':''}" id="qz2grid">${q.options.map(o=>
-        `<div class="qzopt${review&&o.no===q.pickNo?' picked':''}" data-no="${o.no}" data-ok="${o.ok?1:0}"><img src="${TH(o.no,o.k)}" alt="${esc(o.nm)}"><div class="qzname">${esc(o.nm)}</div></div>`).join('')}</div></div>`;
+        `<div class="qzopt${review&&o.no===q.pickNo?' picked':''}" data-no="${o.no}" data-ok="${o.ok?1:0}"><img src="${TH(o.no,o.k)}" alt="${esc(o.nm)}" draggable="false"><div class="qzname">${esc(o.nm)}</div></div>`).join('')}</div></div>`;
   }
   if(dir && wrap.children.length){
     const w=wrap.firstElementChild.getBoundingClientRect().width;
     const oldHTML=wrap.innerHTML;
     quiz.busy=true;
+    /* qzwrap 자체의 좌우 padding까지 클립 영역에 포함되어 밀려나가는 pane 끝자락이
+       살짝 남아있다가 스왑 순간 사라지는 잔상 버그 방지: wrap 패딩과 무관하게
+       콘텐츠 폭(w)에 정확히 맞춘, 움직이지 않는 정적 클립 컨테이너를 하나 더 둔다. */
+    const clip=document.createElement('div'); clip.className='qzclip';
+    clip.style.cssText='overflow:hidden;width:'+w+'px;margin:0 auto;';
     const track=document.createElement('div'); track.className='qztrack';
     const paneOld=document.createElement('div'); paneOld.className='qzpane'; paneOld.style.width=w+'px'; paneOld.innerHTML=oldHTML;
     const paneNew=document.createElement('div'); paneNew.className='qzpane'; paneNew.style.width=w+'px'; paneNew.innerHTML=html;
     if(dir==='qznx'){ track.appendChild(paneOld); track.appendChild(paneNew); track.style.transform='translateX(0)'; }
     else { track.appendChild(paneNew); track.appendChild(paneOld); track.style.transform=`translateX(-${w}px)`; }
-    wrap.innerHTML=''; wrap.appendChild(track);
+    clip.appendChild(track);
+    wrap.innerHTML=''; wrap.appendChild(clip);
     void track.offsetWidth;
     track.style.transition='transform .28s cubic-bezier(.33,0,.2,1)';
     requestAnimationFrame(()=>{ track.style.transform = dir==='qznx' ? `translateX(-${w}px)` : 'translateX(0)'; });
@@ -1093,6 +1101,20 @@ function hookScroll(target,classEl){ let t;
     clearTimeout(t); t=setTimeout(()=>classEl.classList.remove('scrolling'),650); },{passive:true}); }
 hookScroll(window,document.documentElement);
 hookScroll($('detail'),$('detail'));
+/* 타입맞추기 퀴즈 그리드 최초 렌더 지연 완화: 화면 밖에서 미리 한 번 그려서 브라우저 렌더링 엔진을 예열 */
+function warmupQzTypes(){
+  const html=QTYPES.map(t=>{ const c=D.tc[t]||'#999';
+    return `<b data-t="${esc(t)}" style="background:${c};color:${vtext(c)};--tc:${c}">${TI[t]?`<span class="ic"><img src="${TI[t]}" alt="" draggable="false"></span>`:''}<span class="tn">${esc(t)}</span></b>`; }).join('');
+  let w=document.getElementById('qzwarmup');
+  if(!w){ w=document.createElement('div'); w.id='qzwarmup';
+    w.style.cssText='position:fixed;left:-9999px;top:0;width:380px;visibility:hidden;pointer-events:none;';
+    document.body.appendChild(w); }
+  w.innerHTML=`<div class="qztypes">${html}</div>`;
+  void w.offsetHeight;
+  requestAnimationFrame(()=>{ void w.offsetHeight; });
+}
+warmupQzTypes();
+document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='visible') warmupQzTypes(); });
 /* 상세/퀴즈 페이지 스크롤 중 하단 플로팅 버튼 부드럽게 숨김, 멈추면 잠시 후 다시 표시 */
 (function(){ const bf=$('backfab'); let t;
   $('detail').addEventListener('scroll',()=>{ bf.classList.add('fade');
