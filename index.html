@@ -13,8 +13,8 @@
  --bg:#f2f3f5; --card:#fff; --line:#e6e6e6; --soft:#f0f2f5;
  --text:#1a1a1a; --sub:#8a8f96;
 }
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;padding:0}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-user-drag:none;user-drag:none}
+html,body{margin:0;padding:0;overscroll-behavior-y:contain}
 body{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",sans-serif;
  background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased}
 #app{max-width:520px;margin:0 auto;background:var(--card);min-height:100vh;box-shadow:0 0 24px rgba(0,0,0,.08)}
@@ -35,7 +35,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun 
 .topbar .search input{flex:1;height:100%;border:0;background:transparent;color:#1a1a1a;font-size:14px;outline:none;min-width:0}
 .topbar .search input::placeholder{color:#adb0b6}
 .topbar .search .mgi{flex:0 0 auto;opacity:.9}
-.topbar .search .go{flex:0 0 auto;cursor:pointer;padding:0 3px 0 2px;opacity:.92;user-select:none;display:block}
+.topbar .search .go{flex:0 0 auto;cursor:pointer;padding:0;opacity:.92;user-select:none;display:block}
 .topbar .search .go:active{opacity:.55}
 /* ===== 검색 자동완성 ===== */
 #acbox{position:fixed;top:calc(50px + env(safe-area-inset-top));left:0;right:0;z-index:58;
@@ -140,7 +140,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun 
 .grid .cell .nm{font-size:10.5px;font-weight:700;line-height:1.25;letter-spacing:-.5px;word-break:keep-all;margin-top:1px}
 
 #detail{position:fixed;top:calc(50px + env(safe-area-inset-top));left:0;right:0;bottom:0;z-index:55;
- background:transparent;overflow-y:auto;overflow-x:hidden;
+ background:transparent;overflow-y:auto;overflow-x:hidden;overscroll-behavior-y:contain;
  opacity:0;visibility:hidden;transition:opacity .16s ease,visibility 0s linear .16s;-webkit-overflow-scrolling:touch}
 #detail .dwrap{max-width:520px;margin:0 auto;background:#fff;min-height:100%}
 #detail.on{opacity:1;visibility:visible;transition:opacity .16s ease}
@@ -203,7 +203,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun 
  cursor:pointer;margin:0 4px 4px 0}
 .abtn:active{background:#e2e5ea}
 .abtn.hid{background:#eef4fc;border-color:#cfe0f5;color:#1565c0}
-.sec{padding:0 12px 16px}
+.sec{padding:0 12px calc(80px + env(safe-area-inset-bottom))}
 .sec h3{font-size:15px;color:var(--accent);font-weight:800;letter-spacing:.3px;margin:16px 0 8px;
  display:flex;align-items:center;gap:6px}
 .sec h3:after{content:"";flex:1;height:1px;background:#dae6f5}
@@ -326,10 +326,10 @@ table.st td.dn{color:#b03a3a;background:#fdf3f3}
 .dwrap.nx{animation:pokeInR .24s cubic-bezier(.33,0,.2,1)}
 .dwrap.pv{animation:pokeInL .24s cubic-bezier(.33,0,.2,1)}
 /* ===== 퀴즈 ===== */
-.qzwrap{padding:22px 18px calc(60px + env(safe-area-inset-bottom));text-align:center;min-height:100%;position:relative;overflow-x:hidden}
+.qzwrap{padding:22px 18px calc(20px + env(safe-area-inset-bottom));text-align:center;min-height:100%;position:relative;overflow-x:hidden}
 .qzcol{max-width:380px;margin:0 auto;position:relative}
-.qztrack{display:flex;align-items:flex-start}
-.qzpane{flex:0 0 auto;box-sizing:border-box}
+.qztrack{display:flex;align-items:flex-start;will-change:transform;-webkit-backface-visibility:hidden;backface-visibility:hidden}
+.qzpane{flex:0 0 auto;box-sizing:border-box;-webkit-backface-visibility:hidden;backface-visibility:hidden}
 .qzhead{font-size:12px;font-weight:800;color:var(--sub);font-variant-numeric:tabular-nums;margin-bottom:6px}
 .qzq{font-size:17px;font-weight:800;letter-spacing:-.3px;margin-bottom:16px;word-break:keep-all;text-align:left}
 .qzq1,.qzq2{max-width:380px;margin:0 auto 16px}
@@ -339,14 +339,14 @@ table.st td.dn{color:#b03a3a;background:#fdf3f3}
 .qztypes{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;max-width:380px;margin:0 auto 22px;position:relative}
 .qztypes b{border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;
  gap:1px;padding:4px 1px 3px;
- font-size:12px;font-weight:800;cursor:pointer;letter-spacing:-.2px;border:2px solid transparent;
+ font-size:12px;font-weight:800;cursor:pointer;letter-spacing:-.2px;border:2px solid transparent;transform:scale(.9);
  transition:transform .1s,border-color .12s,box-shadow .12s}
 .qztypes b .ic{width:40px;flex:0 0 auto;display:flex;align-items:center;justify-content:center}
 .qztypes b .ic img{width:40px;height:40px;object-fit:contain;display:block}
 .qztypes b .tn{text-align:center;color:#fff}
 .qztypes b:active{transform:scale(.94)}
-.qztypes b.sel{border-color:#fff;box-shadow:0 0 0 2px var(--tc);transform:scale(1.03)}
-.qztypes.review b{cursor:default}
+.qztypes b.sel{border-color:#fff;box-shadow:0 0 0 2px var(--tc);transform:scale(1)}
+.qztypes.review b{cursor:default;pointer-events:none}
 .qzconfirm{display:block;margin:0 auto;min-width:140px;height:46px;border:1px solid var(--line);border-radius:14px;
  background:var(--card);color:var(--text);font-size:15px;font-weight:800;cursor:pointer;letter-spacing:-.3px;
  transition:opacity .12s,transform .1s}
@@ -362,7 +362,7 @@ table.st td.dn{color:#b03a3a;background:#fdf3f3}
  cursor:pointer;transition:transform .1s}
 .qzopt:active{transform:scale(.95)}
 .qzopt.picked{border:2.5px solid #1a1a1a}
-.qz2grid.review .qzopt{cursor:default}
+.qz2grid.review .qzopt{cursor:default;pointer-events:none}
 .qzopt img{width:100%;max-width:88px;aspect-ratio:1;object-fit:contain;display:block;margin:0 auto}
 .qzopt .qzname{font-size:12.5px;font-weight:700;margin-top:4px;letter-spacing:-.3px;word-break:keep-all}
 .qznav{display:flex;align-items:center;justify-content:center;gap:14px;margin-bottom:6px}
@@ -378,7 +378,7 @@ table.st td.dn{color:#b03a3a;background:#fdf3f3}
 </style></head><body>
 <div id="app">
   <div class="topbar">
-    <div class="search"><svg class="mgi" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="#1565c0" stroke-width="2" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"></circle><line x1="20" y1="20" x2="15.3" y2="15.3"></line></svg><input id="q" placeholder="" autocomplete="off"><svg class="go" id="goBtn" viewBox="0 0 24 24" width="40" height="40" title="검색한 포켓몬으로 이동"><polygon points="7,4 20,12 7,20" fill="#FDE52D"></polygon></svg></div>
+    <div class="search"><svg class="mgi" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="#1565c0" stroke-width="2" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"></circle><line x1="20" y1="20" x2="15.3" y2="15.3"></line></svg><input id="q" placeholder="" autocomplete="off"><svg class="go" id="goBtn" viewBox="0 0 24 24" width="17" height="17" title="검색한 포켓몬으로 이동"><polygon points="7,4 20,12 7,20" fill="#FDE52D"></polygon></svg></div>
     <div class="quizbar" id="quizbar"><b data-n="10">10</b><b data-n="30">30</b><b data-n="50">50</b></div>
     <div class="ic hamb-spacer"></div>
   </div>
@@ -451,6 +451,7 @@ function vbadge(v){ const c=VCOL[v]; return c
 const $ = id => document.getElementById(id);
 /* 우클릭(컨텍스트 메뉴)·드래그 전체 페이지 금지 */
 document.addEventListener('contextmenu', e=>e.preventDefault());
+document.addEventListener('dragstart', e=>e.preventDefault());
 document.addEventListener('dragstart', e=>e.preventDefault());
 /* ── 이미지 경로 ────────────────────────────────────────────
    GitHub Pages(현재) : 'https://iruroda.github.io/pokedexmaker/dex_img'
@@ -1048,6 +1049,8 @@ function finishQ(q,ok){
   const qw=$('qzwrap'); if(qw) qw.classList.add('qzchecking');
   if(ok) quiz.correct++;
   showResult(ok);
+  const nq=quiz.list[quiz.answered];
+  if(nq){ const nf=nq.p.fm[0]; preload(TH(nq.p.no,nf.k)); }
   clearTimeout(quizT);
   quizT=setTimeout(()=>{ quiz.view=quiz.answered; if(quiz.answered>=quiz.n) endQuiz(); else renderQ(); },1100);
 }
