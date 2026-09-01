@@ -751,9 +751,34 @@ function navPoke(no,dir){ if(!M[no]||navBusy) return;
   paneNew.addEventListener('transitionend',e=>{ if(e.target===paneNew&&e.propertyName==='transform') finalize(); },{once:true});
   dnAnimT=setTimeout(finalize,320);
 }
-function closeDetail(){ clearTimeout(quizT); quiz=null; $('detail').classList.remove('on'); $('backfab').classList.remove('on');
+/* 6번 딜레이 사용자 재현(14차): "타입 퀴즈에서 메인페이지로 이동할 때, 화면이 켜진 후
+   처음이라면" 비슷한 지연이 난다고 확인해줌 — finishQ() 쪽엔 이미 진단배너가 있지만
+   이 경로(퀴즈/상세 → 메인 복귀)엔 계측이 전혀 없었으므로 동일한 방식(longtask/LAF/힙
+   재사용)으로 여기도 계측을 심어서 다음 재현 때 실측 데이터를 받는다. */
+function closeDetail(){
+  const _dbgT0=performance.now();
+  const _dbgMem0=memSnap();
+  clearTimeout(quizT); quiz=null; $('detail').classList.remove('on'); $('backfab').classList.remove('on');
   $('retryFab').classList.remove('show');
-  document.body.style.overflow=''; if(gridDirty) renderGrid(); }
+  document.body.style.overflow='';
+  const _dbgDidRender=gridDirty;
+  if(gridDirty) renderGrid();
+  const _dbgT1=performance.now();
+  requestAnimationFrame(()=>{
+    const _dbgRaf1=performance.now();
+    const _dbgWait=_dbgRaf1-_dbgT0;
+    if(_dbgWait>400){
+      const _dbgMem1=memSnap();
+      const recentLT=(window._longtasks||[]).slice(-6).join('\n')||'(감지된 longtask 없음)';
+      const recentLAF=(window._longFrames||[]).slice(-4).join('\n')||'(long-animation-frame 미지원 또는 없음)';
+      showDelayDebug('메인으로 이동 지연 감지\n동기실행: '+(_dbgT1-_dbgT0).toFixed(1)+'ms (renderGrid 실행함: '+_dbgDidRender+')\n'
+        +'첫 프레임 그려짐: '+_dbgWait.toFixed(1)+'ms 후\n'
+        +'JS힙메모리: 시작 '+_dbgMem0+' -> 종료 '+_dbgMem1+'\n'
+        +'--- 상세분석(long-animation-frame) ---\n'+recentLAF+'\n'
+        +'--- 롱태스크(메인스레드 50ms+ 점유) 로그 ---\n'+recentLT);
+    }
+  });
+}
 function re(keep){ const el=$('detail'),s=keep?el.scrollTop:0;
   el.innerHTML=build(cur); el.scrollTop=s; bind(el); }
 
