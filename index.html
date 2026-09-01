@@ -745,11 +745,16 @@ function showDelayDebug(msg){
   d.style.display='block';
   d.onclick=()=>{ d.style.display='none'; };
 }
-/* 현재 포켓몬의 다른 모습(lg) → 잠시 뒤 앞뒤 포켓몬(th+lg) 미리 불러오기 */
+/* 현재 포켓몬의 다른 모습(th+lg) → 잠시 뒤 앞뒤 포켓몬(th만) 미리 불러오기.
+   18차: 라지이미지(lg)는 실제로는 "이미지를 눌러서 화면 꽉 채울 때"만 쓰이는데
+   (도감설명 자체나 퀴즈 카드는 전부 썸네일만 사용), 지금까지는 옆 포켓몬까지도
+   lg를 미리 디코딩해두고 있어서 불필요한 메모리 부담이 컸음(사용자 지적) — 지금
+   "보고 있는" 포켓몬 1마리에 대해서만 lg를 미리 받아두고(확대 눌렀을 때 바로
+   뜨도록), 아직 안 보고 있는 옆 포켓몬은 th만 미리 받아둔다. */
 function preloadAround(no){ const p=M[no]; if(!p)return;
   p.fm.forEach(f=>{ preload(TH(no,f.k)); preload(LG(no,f.k)); });
   setTimeout(()=>{ [no-1,no+1].forEach(n=>{ const q=M[n]; if(!q)return;
-    const k=(q.fm[0]||{}).k; preload(TH(n,k)); preload(LG(n,k)); }); }, 500); }
+    const k=(q.fm[0]||{}).k; preload(TH(n,k)); }); }, 500); }
 function openDetail(no){ dexOpen=false; fi=fidx(no); cur=no; closeAC();
   const el=$('detail'); el.innerHTML=build(no); pokeAnim=''; el.scrollTop=0; el.classList.add('on');
   $('backfab').classList.add('on'); document.body.style.overflow='hidden'; bind(el); preloadAround(no); }
@@ -1114,6 +1119,8 @@ function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.rand
 function qNum(s){ const n=parseFloat(String(s).replace(/[^0-9.]/g,'')); return isNaN(n)?null:n; }
 function quizPool(){ return D.m.filter(p=>p.fm&&p.fm[0]&&p.fm[0].ty&&p.fm[0].ty.length&&qNum(p.fm[0].h)!=null&&qNum(p.fm[0].w)!=null); }
 function startQuiz(n){
+  const _dbgT0=performance.now();
+  const _dbgMem0=memSnap();
   closeAC(); closeSide();
   // 6번 딜레이 사용자 재현 패턴(12차): "다른 화면에서 전환된 후 퀴즈를 처음 열 때만"
   // 발생 — 페이지 로드 시점의 예열이 그 사이의 화면전환/시간경과로 무의미해졌을
@@ -1128,6 +1135,26 @@ function startQuiz(n){
   el.scrollTop=0; el.classList.add('on'); $('backfab').classList.add('on');
   document.body.style.overflow='hidden';
   renderQ();
+  /* 18차: 사용자가 PC에서 "퀴즈 나갈 때"가 아니라 "퀴즈를 처음 열 때" 지연을 재현함 —
+     이 경로엔 지금까지 계측이 전혀 없었으므로(넘겨짚지 않고) closeDetail()/finishQ()와
+     동일한 방식으로 여기도 계측을 추가한다. */
+  const _dbgT1=performance.now();
+  requestAnimationFrame(()=>{
+    const _dbgRaf1=performance.now();
+    const _dbgWait=_dbgRaf1-_dbgT0;
+    if(_dbgWait>400){
+      const _dbgMem1=memSnap();
+      const recentLT=(window._longtasks||[]).slice(-6).join('\n')||'(감지된 longtask 없음)';
+      const recentLAF=(window._longFrames||[]).slice(-4).join('\n')||'(long-animation-frame 미지원 또는 없음)';
+      const recentGap=(window._frameGaps||[]).slice(-6).join('\n')||'(감지된 프레임갭 없음)';
+      showDelayDebug('퀴즈 시작 지연 감지\n동기실행(startQuiz~renderQ): '+(_dbgT1-_dbgT0).toFixed(1)+'ms\n'
+        +'첫 프레임 그려짐: '+_dbgWait.toFixed(1)+'ms 후\n'
+        +'JS힙메모리: 시작 '+_dbgMem0+' -> 종료 '+_dbgMem1+'\n'
+        +'--- 프레임 하트비트 갭(250ms+) 로그 ---\n'+recentGap+'\n'
+        +'--- 상세분석(long-animation-frame) ---\n'+recentLAF+'\n'
+        +'--- 롱태스크(메인스레드 50ms+ 점유) 로그 ---\n'+recentLT);
+    }
+  });
 }
 function qzGoPrev(){ if(!quiz||quiz.busy||quiz.view<=0) return; quiz.view--; renderQ('qzpv'); }
 function qzGoNext(){ if(!quiz||quiz.busy||quiz.view>=Math.min(quiz.answered,quiz.n-1)) return; quiz.view++; renderQ('qznx'); }
