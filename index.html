@@ -736,7 +736,11 @@ function navPoke(no,dir){ if(!M[no]||navBusy) return;
   clearTimeout(dnAnimT);
   let done=false;
   const finalize=()=>{ if(done) return; done=true; clearTimeout(dnAnimT);
-    cur=no; host.innerHTML=newHTML; host.scrollTop=0; bind(host);
+    // paneNew에 이미 newHTML이 완성된 DOM으로 존재하므로 문자열을 다시 파싱하지
+    // 않고 그 자식 노드를 그대로 host로 옮겨 붙인다(중복 파싱/생성으로 인한
+    // 할당량을 줄여 GC 압박 완화 — 6번 딜레이 이슈 관련 최적화)
+    cur=no; host.innerHTML=''; while(paneNew.firstChild) host.appendChild(paneNew.firstChild);
+    host.scrollTop=0; bind(host);
     navBusy=false; preloadAround(no); };
   paneNew.addEventListener('transitionend',e=>{ if(e.target===paneNew&&e.propertyName==='transform') finalize(); },{once:true});
   dnAnimT=setTimeout(finalize,320);
@@ -1168,7 +1172,11 @@ function renderQ(dir){
     clearTimeout(qzAnimT);
     let done=false;
     const finalize=()=>{ if(done) return; done=true; clearTimeout(qzAnimT);
-      wrap.innerHTML=html;
+      // paneNew에 이미 html이 완성된 DOM으로 존재하므로 문자열을 다시 파싱하지
+      // 않고 그 자식 노드를 그대로 wrap으로 옮겨 붙인다(중복 파싱/생성으로 인한
+      // 할당량을 줄여 GC 압박 완화 — 6번 딜레이 이슈 관련 최적화)
+      wrap.innerHTML='';
+      while(paneNew.firstChild) wrap.appendChild(paneNew.firstChild);
       quiz.busy=false;
       qzBind(q,p,f,review); };
     paneNew.addEventListener('transitionend',e=>{ if(e.target===paneNew&&e.propertyName==='transform') finalize(); },{once:true});
