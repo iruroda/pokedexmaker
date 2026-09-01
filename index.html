@@ -626,6 +626,17 @@ let dexOpen=false, fi=0, cur=null, pokeAnim='', lastForm={};
 function fidx(no){ const p=M[no]; if(!p) return 0; const i=p.fm.findIndex(f=>f.k===lastForm[no]); return i<0?0:i; }
 const _pl=new Set();
 function preload(url){ if(!url||_pl.has(url))return; _pl.add(url); const i=new Image(); i.decoding='async'; i.src=url; }
+/* 타입맞추기 퀴즈 전환 지연 진단용 — 평소엔 아무 것도 안 보이고, 실제로 지연이 감지될 때만
+   화면에 잠깐 배너로 원인 분석용 수치를 띄운다. 캡처해서 알려주면 정확한 원인 파악에 도움됨. */
+function showDelayDebug(msg){
+  let d=document.getElementById('dlydbg');
+  if(!d){ d=document.createElement('div'); d.id='dlydbg';
+    d.style.cssText='position:fixed;left:10px;right:10px;top:calc(60px + env(safe-area-inset-top));z-index:999;background:#1a1a1a;color:#fff;font-size:12px;line-height:1.6;padding:12px 14px;border-radius:12px;white-space:pre-wrap;box-shadow:0 6px 20px rgba(0,0,0,.35);';
+    document.body.appendChild(d); }
+  d.textContent='⚠️ '+msg+'\n\n(이 내용 캡처해서 알려주세요 — 탭하면 닫힘)';
+  d.style.display='block';
+  d.onclick=()=>{ d.style.display='none'; };
+}
 /* 현재 포켓몬의 다른 모습(lg) → 잠시 뒤 앞뒤 포켓몬(th+lg) 미리 불러오기 */
 function preloadAround(no){ const p=M[no]; if(!p)return;
   p.fm.forEach(f=>{ preload(TH(no,f.k)); preload(LG(no,f.k)); });
@@ -1024,28 +1035,41 @@ function renderQ(dir){
     const w=wrap.firstElementChild.getBoundingClientRect().width;
     const oldHTML=wrap.innerHTML;
     quiz.busy=true;
-    /* qzwrap 자체의 좌우 padding까지 클립 영역에 포함되어 밀려나가는 pane 끝자락이
-       살짝 남아있다가 스왑 순간 사라지는 잔상 버그 방지: wrap 패딩과 무관하게
-       콘텐츠 폭(w)에 정확히 맞춘, 움직이지 않는 정적 클립 컨테이너를 하나 더 둔다. */
+    /* 새 문제와 이전 문제를 완전히 독립된 절대좌표 두 판으로 만들어 같은 속도로
+       반대편에서 들어오고 반대편으로 나가게 한다(둘 다 같은 duration/easing로
+       동시에 움직이는 '푸시' 전환). 클리핑은 콘텐츠 폭(w)에 정확히 맞춘, 움직이지
+       않는 정적 컨테이너(clip)가 담당해서 wrap 자체 padding과 무관하게 잔상 없이
+       딱 잘리게 한다. */
     const clip=document.createElement('div'); clip.className='qzclip';
-    clip.style.cssText='overflow:hidden;width:'+w+'px;margin:0 auto;';
-    const track=document.createElement('div'); track.className='qztrack';
-    const paneOld=document.createElement('div'); paneOld.className='qzpane'; paneOld.style.width=w+'px'; paneOld.innerHTML=oldHTML;
-    const paneNew=document.createElement('div'); paneNew.className='qzpane'; paneNew.style.width=w+'px'; paneNew.innerHTML=html;
-    if(dir==='qznx'){ track.appendChild(paneOld); track.appendChild(paneNew); track.style.transform='translateX(0)'; }
-    else { track.appendChild(paneNew); track.appendChild(paneOld); track.style.transform=`translateX(-${w}px)`; }
-    clip.appendChild(track);
+    clip.style.cssText='position:relative;overflow:hidden;width:'+w+'px;margin:0 auto;';
+    const paneOld=document.createElement('div'); paneOld.className='qzpane';
+    paneOld.style.cssText='position:absolute;top:0;left:0;width:'+w+'px;';
+    paneOld.innerHTML=oldHTML;
+    const paneNew=document.createElement('div'); paneNew.className='qzpane';
+    paneNew.style.cssText='position:absolute;top:0;left:0;width:'+w+'px;';
+    paneNew.innerHTML=html;
+    clip.appendChild(paneOld); clip.appendChild(paneNew);
     wrap.innerHTML=''; wrap.appendChild(clip);
-    void track.offsetWidth;
-    track.style.transition='transform .28s cubic-bezier(.33,0,.2,1)';
-    requestAnimationFrame(()=>{ track.style.transform = dir==='qznx' ? `translateX(-${w}px)` : 'translateX(0)'; });
+    const oldH=paneOld.offsetHeight, newH=paneNew.offsetHeight;
+    clip.style.height=Math.max(oldH,newH)+'px';
+    const enterFrom = dir==='qznx' ? w : -w;   // 새 화면이 들어오는 시작 위치(다음:오른쪽에서, 이전:왼쪽에서)
+    const exitTo    = dir==='qznx' ? -w : w;   // 이전 화면이 나가는 도착 위치(다음:왼쪽으로, 이전:오른쪽으로)
+    paneOld.style.transform='translateX(0)';
+    paneNew.style.transform=`translateX(${enterFrom}px)`;
+    void clip.offsetWidth;
+    paneOld.style.transition='transform .28s cubic-bezier(.33,0,.2,1)';
+    paneNew.style.transition='transform .28s cubic-bezier(.33,0,.2,1)';
+    requestAnimationFrame(()=>{
+      paneOld.style.transform=`translateX(${exitTo}px)`;
+      paneNew.style.transform='translateX(0)';
+    });
     clearTimeout(qzAnimT);
     let done=false;
     const finalize=()=>{ if(done) return; done=true; clearTimeout(qzAnimT);
       wrap.innerHTML=html;
       quiz.busy=false;
       qzBind(q,p,f,review); };
-    track.addEventListener('transitionend',e=>{ if(e.target===track&&e.propertyName==='transform') finalize(); },{once:true});
+    paneNew.addEventListener('transitionend',e=>{ if(e.target===paneNew&&e.propertyName==='transform') finalize(); },{once:true});
     qzAnimT=setTimeout(finalize,340);
   } else {
     wrap.innerHTML=html;
@@ -1053,14 +1077,28 @@ function renderQ(dir){
   }
 }
 function finishQ(q,ok){
+  const _dbgT0=performance.now();
   quiz.busy=true; q.answered=true; q.ok=ok; quiz.answered++;
   const qw=$('qzwrap'); if(qw) qw.classList.add('qzchecking');
   if(ok) quiz.correct++;
   showResult(ok);
+  const _dbgT1=performance.now();
   const nq=quiz.list[quiz.answered];
   if(nq){ const nf=nq.p.fm[0]; preload(TH(nq.p.no,nf.k)); }
+  const _dbgT2=performance.now();
+  const _dbgType=q.type;
   clearTimeout(quizT);
-  quizT=setTimeout(()=>{ quiz.view=quiz.answered; if(quiz.answered>=quiz.n) endQuiz(); else renderQ(); },1100);
+  quizT=setTimeout(()=>{
+    const _dbgT3=performance.now();
+    const _dbgWait=_dbgT3-_dbgT0;
+    quiz.view=quiz.answered; if(quiz.answered>=quiz.n) endQuiz(); else renderQ();
+    const _dbgT4=performance.now();
+    if(_dbgWait>1500){
+      showDelayDebug('타입'+_dbgType+' 문항 전환 지연 감지\n예정 1100ms -> 실제 '+_dbgWait.toFixed(0)+'ms\n'
+        +'finishQ 동기실행: '+(_dbgT1-_dbgT0).toFixed(1)+'ms / preload호출: '+(_dbgT2-_dbgT1).toFixed(1)+'ms\n'
+        +'다음문제 렌더(renderQ): '+(_dbgT4-_dbgT3).toFixed(1)+'ms');
+    }
+  },1100);
 }
 function showResult(ok){
   const d=document.createElement('div'); d.className='qzresult';
