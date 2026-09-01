@@ -1028,6 +1028,10 @@ function qNum(s){ const n=parseFloat(String(s).replace(/[^0-9.]/g,'')); return i
 function quizPool(){ return D.m.filter(p=>p.fm&&p.fm[0]&&p.fm[0].ty&&p.fm[0].ty.length&&qNum(p.fm[0].h)!=null&&qNum(p.fm[0].w)!=null); }
 function startQuiz(n){
   closeAC(); closeSide();
+  // 6번 딜레이 사용자 재현 패턴(12차): "다른 화면에서 전환된 후 퀴즈를 처음 열 때만"
+  // 발생 — 페이지 로드 시점의 예열이 그 사이의 화면전환/시간경과로 무의미해졌을
+  // 가능성을 염두에 두고, 퀴즈가 열릴 때마다 O/X 오버레이를 다시 예열해둔다.
+  warmupQzResult();
   const pool=shuffle(quizPool().slice());
   const picks=pool.slice(0,Math.min(n,pool.length));
   quiz={ n:picks.length, answered:0, view:0, correct:0, busy:false, sel:[],
@@ -1233,7 +1237,29 @@ function showResult(ok){
       +'<line x1="180" y1="20" x2="20" y2="180" stroke="#fff" stroke-width="28" stroke-linecap="round"/>'
       +'<line x1="20" y1="20" x2="180" y2="180" stroke="#F0567A" stroke-width="20" stroke-linecap="round"/>'
       +'<line x1="180" y1="20" x2="20" y2="180" stroke="#F0567A" stroke-width="20" stroke-linecap="round"/></svg>';
-  $('detail').appendChild(d); setTimeout(()=>d.remove(),950);
+  /* 13차: 사용자가 "OX가 아예 안 보이는 것에 가까운 것 같다"고 짚어준 것에 대한 대응.
+     기존엔 append하자마자 qzpop(.9s, opacity 0→1→1→0) CSS 애니메이션이 실제(벽시계)
+     시간 기준으로 바로 재생을 시작했음. 만약 append 직후 GC pause 같은 메인스레드
+     정지가 끼면, 그 정지 동안에도 애니메이션 타임라인은 실제 시간 그대로 흘러가버려서
+     (합성스레드는 메인스레드와 별개로 시간이 흐름) 정지가 900ms보다 길면 브라우저가
+     그 O/X를 처음으로 그릴 기회를 얻었을 땐 이미 애니메이션이 다 끝나 opacity:0인
+     상태(forwards의 100% 키프레임)라서 사실상 한 번도 안 보이고 끝나버렸을 것.
+     거기다 제거 타이머(예전엔 950ms 고정 setTimeout)도 같은 벽시계 시간으로 흐르므로
+     메인스레드가 풀리자마자 이미 만료돼 즉시 지워짐 — 결과적으로 "OX가 안 나타나는"
+     것처럼 보였을 정황과 정확히 일치.
+     수정: 애니메이션을 처음엔 일시정지 상태로 붙여서(로컬 타임라인이 0에서 멈춤) 실제
+     시간이 아무리 흘러도 진행되지 않게 하고, 실제로 화면을 그릴 기회(requestAnimationFrame)
+     가 왔을 때 비로소 재생을 시작한다 — 이러면 메인스레드가 막혀있던 동안엔 타임라인이
+     그대로 0에 멈춰 있다가, 풀리는 순간부터 온전한 .9s를 다시 재생하므로 항상 눈에 보임.
+     제거도 고정 타이머 대신 실제 애니메이션이 끝나는 animationend 시점에 맞춰서 한다
+     (예외상황 대비 안전망 타이머만 넉넉하게 남겨둠). */
+  d.style.animationPlayState='paused';
+  $('detail').appendChild(d);
+  let removed=false;
+  const remove=()=>{ if(removed) return; removed=true; d.remove(); };
+  d.addEventListener('animationend',remove,{once:true});
+  requestAnimationFrame(()=>{ d.style.animationPlayState='running'; });
+  setTimeout(remove,3000);
 }
 /* 이미 푼 문제 구간에서 좌우 스와이프로도 이동 가능 (리스너는 #detail에 1회만 등록)
    가로 스와이프 도중 손가락의 미세한 세로 움직임 때문에 #detail이 살짝 세로로
@@ -1288,18 +1314,29 @@ function warmupQzTypes(){
   void w.offsetHeight;
   requestAnimationFrame(()=>{ void w.offsetHeight; });
 }
-/* 정답 확인시 뜨는 O/X 오버레이(.qzresult, qzpop 애니메이션)도 세션 중 최초 1회는
-   SVG 래스터/합성 레이어 생성 비용이 처음으로 발생해 지연의 원인이 될 수 있어서
-   화면 밖에서 미리 한 번 그려 예열해둔다. */
+/* 정답 확인시 뜨는 O/X 오버레이(.qzresult, qzpop 애니메이션)도 최초 1회는 SVG
+   래스터/합성 레이어 생성 비용이 발생해 지연의 원인이 될 수 있어서 화면 밖에서
+   미리 한 번 그려 예열해둔다.
+   **주의(8차에 발견한 실수, 12차에 재시도)**: 예전 버전은 `.qzresult`에 인라인으로
+   `position:absolute;left:-9999px`를 얹어서 예열했는데, 이건 클래스 자체의
+   `position:fixed;inset:0`(뷰포트 전체를 덮는 진짜 레이아웃/합성 비용)를 인라인
+   스타일이 덮어써버려서 실제 발생 시나리오와 전혀 다른(훨씬 가벼운) 걸 예열한
+   셈이었다 — 검증이 무효했음. 이번엔 `.qzresult` 자신의 클래스/스타일은 전혀
+   건드리지 않고, 대신 부모 래퍼에 `transform`을 줘서(CSS 스펙상 transform이 있는
+   조상은 position:fixed 자손의 containing block이 됨) `inset:0`이 뷰포트가 아니라
+   이 1px짜리 화면 밖 래퍼를 기준으로 계산되게 만든다 — 즉 진짜 `.qzresult`와
+   동일한 레이어승격/애니메이션 비용을 그대로 겪으면서도 화면엔 전혀 안 보임. */
 function warmupQzResult(){
   let w=document.getElementById('qzresultwarmup');
   if(w) w.remove();
-  const d=document.createElement('div'); d.id='qzresultwarmup'; d.className='qzresult';
-  d.style.cssText='position:absolute;left:-9999px;top:-9999px;pointer-events:none;';
+  w=document.createElement('div'); w.id='qzresultwarmup';
+  w.style.cssText='position:fixed;left:-9999px;top:-9999px;width:1px;height:1px;overflow:hidden;transform:translateZ(0);pointer-events:none;';
+  const d=document.createElement('div'); d.className='qzresult'; // 인라인 스타일 없음: 실제와 동일한 CSS 그대로 적용
   d.innerHTML='<svg viewBox="0 0 200 200" width="184" height="184">'
     +'<circle cx="100" cy="100" r="80" fill="none" stroke="#fff" stroke-width="28"/>'
     +'<circle cx="100" cy="100" r="80" fill="none" stroke="#3C72DC" stroke-width="20"/></svg>';
-  document.body.appendChild(d);
+  w.appendChild(d);
+  document.body.appendChild(w);
   void d.offsetHeight;
   requestAnimationFrame(()=>{ void d.offsetHeight;
     requestAnimationFrame(()=>{ const cur=document.getElementById('qzresultwarmup'); if(cur) cur.remove(); }); });
