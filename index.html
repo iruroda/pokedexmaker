@@ -557,13 +557,31 @@ function memSnap(){ try{ return performance.memory ? (performance.memory.usedJSH
    불리는지 자체를 상시 감시하는 하트비트를 추가로 심어서, "프레임과 프레임 사이에
    250ms 넘게 아무것도 안 불린 구간"을 직접 잡아본다. */
 window._frameGaps=[];
+/* 16차 실측(새로고침 직후에도 재현됨 — 화면 on/off와 무관함이 확인됨): 프레임갭은
+   정확히 잡히는데 그 순간 longtask/LAF/힙변화 전부 단서가 없어서, "그 구간에 대체
+   뭐가 진행 중이었는지"를 알아내려면 그 시간대에 걸쳐있던 네트워크 리소스(이미지
+   로딩 등)를 직접 대조해봐야 함 — resource timing과 그 순간의 미완료 이미지 개수를
+   갭 로그에 같이 남긴다. */
 (function(){
   let last=performance.now();
   function tick(){
     const now=performance.now();
     const gap=now-last;
-    if(gap>250){ window._frameGaps.push('프레임갭 '+gap.toFixed(0)+'ms ('+last.toFixed(0)+'ms~'+now.toFixed(0)+'ms)');
-      if(window._frameGaps.length>15) window._frameGaps.shift(); }
+    if(gap>250){
+      let resSummary='(겹치는 리소스 없음)';
+      try{
+        const res=performance.getEntriesByType('resource')
+          .filter(e=>e.startTime<now && (e.responseEnd||e.startTime)>last)
+          .slice(-8)
+          .map(e=>{ const tail=e.name.split('/').slice(-1)[0].split('?')[0];
+            return tail+'('+e.initiatorType+') '+e.startTime.toFixed(0)+'~'+(e.responseEnd||0).toFixed(0)+'ms'; });
+        if(res.length) resSummary=res.join(', ');
+      }catch(e){}
+      let pendingImg='N/A';
+      try{ pendingImg=[...document.images].filter(im=>!im.complete).length+''; }catch(e){}
+      window._frameGaps.push('프레임갭 '+gap.toFixed(0)+'ms ('+last.toFixed(0)+'ms~'+now.toFixed(0)+'ms) | 그 구간 겹치는 리소스: '+resSummary+' | 그 시점 미완료 img태그: '+pendingImg);
+      if(window._frameGaps.length>15) window._frameGaps.shift();
+    }
     last=now;
     requestAnimationFrame(tick);
   }
