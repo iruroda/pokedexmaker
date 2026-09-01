@@ -547,6 +547,28 @@ try{
   _lafo.observe({type:'long-animation-frame',buffered:true});
 }catch(e){}
 function memSnap(){ try{ return performance.memory ? (performance.memory.usedJSHeapSize/1048576).toFixed(1)+'MB' : 'N/A'; }catch(e){ return 'N/A'; } }
+/* 15차 실측: longtask/LAF 둘 다 실제 지연 구간에는 안 잡히거나(메인으로 이동 지연 배너),
+   잡혀도 귀속 스크립트가 없고 힙메모리도 늘어난 경우(타입1 문항 전환 배너)가 나옴 —
+   즉 "우리 JS가 뭔가 무거운 걸 실행 중"이 아니라 "메인스레드/렌더러 자체가 그 시간동안
+   그냥 아무 태스크도 못 돌리고 있었다"에 더 가까워 보임(OS가 화면 꺼진 동안 렌더러
+   스레드에 CPU 시간을 거의 안 준 뒤, 화면 켜지고 나서 정상 스케줄링 복귀까지 텀이
+   있는 경우 등). longtask/LAF는 "태스크가 실행된 뒤"의 시간만 재므로, 태스크 자체가
+   시작을 못 한 구간(진짜 스레드 정지)은 못 잡을 수 있음 — 그래서 rAF가 매 프레임
+   불리는지 자체를 상시 감시하는 하트비트를 추가로 심어서, "프레임과 프레임 사이에
+   250ms 넘게 아무것도 안 불린 구간"을 직접 잡아본다. */
+window._frameGaps=[];
+(function(){
+  let last=performance.now();
+  function tick(){
+    const now=performance.now();
+    const gap=now-last;
+    if(gap>250){ window._frameGaps.push('프레임갭 '+gap.toFixed(0)+'ms ('+last.toFixed(0)+'ms~'+now.toFixed(0)+'ms)');
+      if(window._frameGaps.length>15) window._frameGaps.shift(); }
+    last=now;
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+})();
 try{
   if(window.firebase){
     firebase.initializeApp(FIREBASE_CONFIG);
@@ -771,9 +793,11 @@ function closeDetail(){
       const _dbgMem1=memSnap();
       const recentLT=(window._longtasks||[]).slice(-6).join('\n')||'(감지된 longtask 없음)';
       const recentLAF=(window._longFrames||[]).slice(-4).join('\n')||'(long-animation-frame 미지원 또는 없음)';
+      const recentGap=(window._frameGaps||[]).slice(-6).join('\n')||'(감지된 프레임갭 없음)';
       showDelayDebug('메인으로 이동 지연 감지\n동기실행: '+(_dbgT1-_dbgT0).toFixed(1)+'ms (renderGrid 실행함: '+_dbgDidRender+')\n'
         +'첫 프레임 그려짐: '+_dbgWait.toFixed(1)+'ms 후\n'
         +'JS힙메모리: 시작 '+_dbgMem0+' -> 종료 '+_dbgMem1+'\n'
+        +'--- 프레임 하트비트 갭(250ms+) 로그 ---\n'+recentGap+'\n'
         +'--- 상세분석(long-animation-frame) ---\n'+recentLAF+'\n'
         +'--- 롱태스크(메인스레드 50ms+ 점유) 로그 ---\n'+recentLT);
     }
@@ -1247,11 +1271,13 @@ function finishQ(q,ok){
       const recentLog=(window._fbLog||[]).slice(-6).join('\n');
       const recentLT=(window._longtasks||[]).slice(-6).join('\n')||'(감지된 longtask 없음)';
       const recentLAF=(window._longFrames||[]).slice(-4).join('\n')||'(long-animation-frame 미지원 또는 없음)';
+      const recentGap=(window._frameGaps||[]).slice(-6).join('\n')||'(감지된 프레임갭 없음)';
       showDelayDebug('타입'+_dbgType+' 문항 전환 지연 감지\n예정 1100ms -> 실제 '+_dbgWait.toFixed(0)+'ms\n'
         +'finishQ 동기실행: '+(_dbgT1-_dbgT0).toFixed(1)+'ms / preload호출: '+(_dbgT2-_dbgT1).toFixed(1)+'ms\n'
         +'다음문제 렌더(renderQ): '+(_dbgT4-_dbgT3).toFixed(1)+'ms\n'
         +'첫 프레임 그려짐(rAF1): '+(_dbgRaf1!==null?(_dbgRaf1-_dbgT1).toFixed(1):'미도달')+'ms 후 / 다음 프레임(rAF2): '+(_dbgRaf2!==null?(_dbgRaf2-_dbgT1).toFixed(1):'미도달')+'ms 후\n'
         +'JS힙메모리: 시작 '+_dbgMem0+' -> 종료 '+_dbgMem1+'\n'
+        +'--- 프레임 하트비트 갭(250ms+) 로그 ---\n'+recentGap+'\n'
         +'--- 상세분석(long-animation-frame, 스크립트vs렌더링 구분) ---\n'+recentLAF+'\n'
         +'--- 롱태스크(메인스레드 50ms+ 점유) 로그 ---\n'+recentLT+'\n'
         +'--- Firebase/가시성 이벤트 로그(지금 시각 '+_dbgT0.toFixed(0)+'ms) ---\n'+recentLog);
