@@ -357,9 +357,10 @@ table.st td.dn{color:#b03a3a;background:#fdf3f3}
 .qztypes.review b{cursor:default;pointer-events:none}
 .qzconfirm{display:block;margin:0 auto;min-width:140px;height:46px;border:1px solid var(--line);border-radius:14px;
  background:var(--card);color:var(--text);font-size:17px;font-weight:800;cursor:pointer;letter-spacing:-.3px;
- transition:opacity .12s,transform .1s}
+ font-family:inherit;transition:opacity .12s,transform .1s,border-color .12s}
 .qzconfirm:active{transform:scale(.96)}
 .qzconfirm[disabled]{opacity:.35;pointer-events:none;box-shadow:none}
+.qzconfirm:not([disabled]){border:2.5px solid #1a1a1a}
 .qzdesc{background:#fafafa;border:1px solid var(--line);border-radius:14px;padding:16px 18px;max-width:380px;margin:0 auto 22px;
  text-align:left;font-size:14px;line-height:2}
 .qzdesc b{color:var(--accent);font-weight:800;margin-right:8px;display:inline-block;min-width:52px}
