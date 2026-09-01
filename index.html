@@ -495,10 +495,20 @@ const FIREBASE_CONFIG = {
   appId: "1:69457831977:web:faeee4ba343a6c9b931438"
 };
 let fbReady = false;
+/* 딜레이 버그 진단용: Firebase/화면가시성 관련 이벤트가 실제로 언제 일어나는지
+   기록해뒀다가, 퀴즈 전환 지연이 감지되면 디버그 배너에 같이 보여준다.
+   (탭 백그라운드 복귀 시 Firebase 토큰 갱신/IndexedDB 재개 등이 한꺼번에
+   몰리면서 메인스레드를 오래 점유하는 것이 지연의 실제 원인일 가능성 확인용) */
+window._fbLog=[];
+function fbLog(msg){ try{ window._fbLog.push(msg+' @'+performance.now().toFixed(0)+'ms');
+  if(window._fbLog.length>25) window._fbLog.shift(); }catch(e){} }
+fbLog('스크립트 시작');
+document.addEventListener('visibilitychange',()=>fbLog('visibilitychange->'+document.visibilityState));
 try{
   if(window.firebase){
     firebase.initializeApp(FIREBASE_CONFIG);
     fbReady = true;
+    fbLog('firebase.initializeApp 완료');
   }
 }catch(e){ console.warn('Firebase init 실패:', e); }
 
@@ -552,13 +562,15 @@ $('loginPw').addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefa
 
 if(fbReady){
   firebase.auth().onAuthStateChanged(user=>{
+    fbLog('onAuthStateChanged 발동 user='+(user?'있음':'없음'));
     if(user){
       loggedIn = true; closeLogin();
       const label = emailToId(user.email) || user.displayName || '회원';
       firebase.firestore().collection('users').doc(user.uid).get().then(doc=>{
+        fbLog('firestore isAdmin get() 완료');
         const isAdmin = doc.exists && doc.data().isAdmin === true;
         setAuthUI(isAdmin ? 'admin' : 'in', label);
-      }).catch(()=> setAuthUI('in', label));
+      }).catch(()=> { fbLog('firestore isAdmin get() 실패'); setAuthUI('in', label); });
     } else { loggedIn = false; setAuthUI('out'); }
   });
 } else { setAuthUI('out'); }
@@ -1105,10 +1117,12 @@ function finishQ(q,ok){
     quiz.view=quiz.answered; if(quiz.answered>=quiz.n) endQuiz(); else renderQ();
     const _dbgT4=performance.now();
     if(_dbgWait>1500){
+      const recentLog=(window._fbLog||[]).slice(-8).join('\n');
       showDelayDebug('타입'+_dbgType+' 문항 전환 지연 감지\n예정 1100ms -> 실제 '+_dbgWait.toFixed(0)+'ms\n'
         +'finishQ 동기실행: '+(_dbgT1-_dbgT0).toFixed(1)+'ms / preload호출: '+(_dbgT2-_dbgT1).toFixed(1)+'ms\n'
         +'다음문제 렌더(renderQ): '+(_dbgT4-_dbgT3).toFixed(1)+'ms\n'
-        +'첫 프레임 그려짐(rAF1): '+(_dbgRaf1!==null?(_dbgRaf1-_dbgT1).toFixed(1):'미도달')+'ms 후 / 다음 프레임(rAF2): '+(_dbgRaf2!==null?(_dbgRaf2-_dbgT1).toFixed(1):'미도달')+'ms 후');
+        +'첫 프레임 그려짐(rAF1): '+(_dbgRaf1!==null?(_dbgRaf1-_dbgT1).toFixed(1):'미도달')+'ms 후 / 다음 프레임(rAF2): '+(_dbgRaf2!==null?(_dbgRaf2-_dbgT1).toFixed(1):'미도달')+'ms 후\n'
+        +'(지금 시각 '+_dbgT0.toFixed(0)+'ms 기준 최근 이벤트 로그)\n'+recentLog);
     }
   },1100);
 }
@@ -1125,11 +1139,26 @@ function showResult(ok){
       +'<line x1="180" y1="20" x2="20" y2="180" stroke="#F0567A" stroke-width="20" stroke-linecap="round"/></svg>';
   $('detail').appendChild(d); setTimeout(()=>d.remove(),950);
 }
-/* 이미 푼 문제 구간에서 좌우 스와이프로도 이동 가능 (리스너는 #detail에 1회만 등록) */
-(function(){ const el=$('detail'); let qx0=null,qy0=null;
-  el.addEventListener('touchstart',e=>{qx0=e.touches[0].clientX;qy0=e.touches[0].clientY},{passive:true});
-  el.addEventListener('touchend',e=>{
+/* 이미 푼 문제 구간에서 좌우 스와이프로도 이동 가능 (리스너는 #detail에 1회만 등록)
+   가로 스와이프 도중 손가락의 미세한 세로 움직임 때문에 #detail이 살짝 세로로
+   스크롤됐다가 튕겨 돌아오는(elastic bounce) 현상이 상단쪽에서 화면이 "U자로
+   내려왔다 올라가는" 것처럼 보이는 원인이었음 — 가로 의도가 분명해지는 순간부터
+   touchmove를 preventDefault해서 세로 스크롤/바운스 자체가 아예 발생하지
+   않도록 막는다(세로 의도가 먼저 분명해지면 원래대로 스크롤 허용). */
+(function(){ const el=$('detail'); let qx0=null,qy0=null,qzLockH=false;
+  el.addEventListener('touchstart',e=>{qx0=e.touches[0].clientX;qy0=e.touches[0].clientY;qzLockH=false},{passive:true});
+  el.addEventListener('touchmove',e=>{
     if(qx0===null||!quiz||!el.classList.contains('on')) return;
+    if(!qzLockH){
+      const dx=e.touches[0].clientX-qx0, dy=e.touches[0].clientY-qy0;
+      if(Math.abs(dx)>15 && Math.abs(dx)>Math.abs(dy)*1.2) qzLockH=true;
+      else if(Math.abs(dy)>15) return;
+      else return;
+    }
+    if(qzLockH) e.preventDefault();
+  },{passive:false});
+  el.addEventListener('touchend',e=>{
+    if(qx0===null||!quiz||!el.classList.contains('on')) { qx0=null; return; }
     const dx=e.changedTouches[0].clientX-qx0, dy=e.changedTouches[0].clientY-qy0; qx0=null;
     if(Math.abs(dx)<60||Math.abs(dx)<Math.abs(dy)*1.4) return;
     if(dx<0) qzGoNext(); else qzGoPrev();
