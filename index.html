@@ -519,6 +519,27 @@ try{
   });
   _lto.observe({type:'longtask',buffered:true});
 }catch(e){}
+/* longtask보다 훨씬 자세한 신형 API — "그 태스크 중 실제 JS 실행이 얼마였고
+   스타일/레이아웃(렌더링) 계산이 얼마였는지"를 나눠서 알려주고, 어떤 스크립트/
+   콜백(예: 클릭 이벤트 핸들러 vs setTimeout)이 원인인지까지 이름을 알려줄 수
+   있어서, "우리 JS 자체가 도는 중이었는지 vs 브라우저 렌더링 파이프라인이 멈춰
+   있었는지"를 훨씬 직접적으로 구분해준다(지원 안 하는 브라우저는 조용히 무시). */
+window._longFrames=[];
+try{
+  const _lafo=new PerformanceObserver(list=>{
+    for(const e of list.getEntries()){
+      const scriptPhase=(e.renderStart||e.startTime)-e.startTime; // 콜백/스크립트 실행에 쓴 시간
+      const renderPhase=(e.startTime+e.duration)-(e.renderStart||e.startTime+e.duration); // 스타일/레이아웃/페인트 등 렌더링에 쓴 시간
+      const scripts=(e.scripts||[]).slice(0,3).map(s=>
+        (s.invoker||'?')+'('+(s.invokerType||'')+') '+(s.duration||0).toFixed(0)+'ms').join(', ');
+      window._longFrames.push('LAF 총 '+e.duration.toFixed(0)+'ms @'+e.startTime.toFixed(0)+'ms'
+        +' = 스크립트실행 '+scriptPhase.toFixed(0)+'ms + 렌더링(스타일/레이아웃/페인트) '+renderPhase.toFixed(0)+'ms'
+        +(scripts?(' | 스크립트목록: '+scripts):' | (귀속된 스크립트 없음)'));
+      if(window._longFrames.length>15) window._longFrames.shift();
+    }
+  });
+  _lafo.observe({type:'long-animation-frame',buffered:true});
+}catch(e){}
 function memSnap(){ try{ return performance.memory ? (performance.memory.usedJSHeapSize/1048576).toFixed(1)+'MB' : 'N/A'; }catch(e){ return 'N/A'; } }
 try{
   if(window.firebase){
@@ -673,20 +694,52 @@ function preloadAround(no){ const p=M[no]; if(!p)return;
 function openDetail(no){ dexOpen=false; fi=fidx(no); cur=no; closeAC();
   const el=$('detail'); el.innerHTML=build(no); pokeAnim=''; el.scrollTop=0; el.classList.add('on');
   $('backfab').classList.add('on'); document.body.style.overflow='hidden'; bind(el); preloadAround(no); }
-let navBusy=false;
+let navBusy=false, dnAnimT=null;
 function navPoke(no,dir){ if(!M[no]||navBusy) return;
-  const host=$('detail'), ov=$('dov');
+  const host=$('detail');
   fi=fidx(no); dexOpen=false; pokeAnim='';
-  ov.innerHTML=build(no);
-  ov.className='on '+(dir==='pv'?'fromL':'fromR');
-  void ov.offsetWidth;                         // 시작 transform 적용용 reflow
+  const newHTML=build(no);
+  const oldDwrap=host.querySelector('.dwrap');
+  if(!oldDwrap){ cur=no; host.innerHTML=newHTML; host.scrollTop=0; bind(host); preloadAround(no); return; }
+  /* 퀴즈 리뷰 스와이프와 동일한 방식: 기존 페이지와 새 페이지를 완전히 독립된
+     절대좌표 두 판으로 만들어 같은 속도로 반대편에서 들어오고 반대편으로
+     나가게 한다(기존엔 새 페이지만 위로 덮듯 슬라이드, 아래 페이지는 정지).
+     #detail 자체는 padding이 없어서(.dwrap의 max-width:520px+margin:0 auto가
+     알아서 중앙정렬) 퀴즈 때와 달리 padding 상쇄/이전 없이 바로 적용 가능. */
+  host.scrollTop=0; // 전환은 항상 맨 위 기준으로(기존 동작과 동일)
+  const fullW=host.getBoundingClientRect().width;
+  const oldHTML=oldDwrap.outerHTML;
   navBusy=true;
-  requestAnimationFrame(()=>ov.classList.add('go'));
-  setTimeout(()=>{
-    cur=no; host.innerHTML=build(no); host.scrollTop=0; bind(host);
-    ov.className=''; ov.innerHTML='';
-    navBusy=false; preloadAround(no);
-  }, 280);
+  const clip=document.createElement('div'); clip.className='dnclip';
+  clip.style.cssText='position:relative;overflow:hidden;width:'+fullW+'px;';
+  const paneOld=document.createElement('div'); paneOld.className='dnpane';
+  paneOld.style.cssText='position:absolute;top:0;left:0;width:'+fullW+'px;';
+  paneOld.innerHTML=oldHTML;
+  const paneNew=document.createElement('div'); paneNew.className='dnpane';
+  paneNew.style.cssText='position:absolute;top:0;left:0;width:'+fullW+'px;';
+  paneNew.innerHTML=newHTML;
+  clip.appendChild(paneOld); clip.appendChild(paneNew);
+  host.innerHTML=''; host.appendChild(clip);
+  const oldH=paneOld.offsetHeight, newH=paneNew.offsetHeight;
+  clip.style.height=Math.max(oldH,newH)+'px';
+  const enterFrom = dir==='nx' ? fullW : -fullW;   // 새 포켓몬이 들어오는 시작 위치(다음:오른쪽에서, 이전:왼쪽에서)
+  const exitTo    = dir==='nx' ? -fullW : fullW;   // 기존 포켓몬이 나가는 도착 위치(다음:왼쪽으로, 이전:오른쪽으로)
+  paneOld.style.transform='translateX(0)';
+  paneNew.style.transform=`translateX(${enterFrom}px)`;
+  void clip.offsetWidth;
+  paneOld.style.transition='transform .26s cubic-bezier(.33,0,.2,1)';
+  paneNew.style.transition='transform .26s cubic-bezier(.33,0,.2,1)';
+  requestAnimationFrame(()=>{
+    paneOld.style.transform=`translateX(${exitTo}px)`;
+    paneNew.style.transform='translateX(0)';
+  });
+  clearTimeout(dnAnimT);
+  let done=false;
+  const finalize=()=>{ if(done) return; done=true; clearTimeout(dnAnimT);
+    cur=no; host.innerHTML=newHTML; host.scrollTop=0; bind(host);
+    navBusy=false; preloadAround(no); };
+  paneNew.addEventListener('transitionend',e=>{ if(e.target===paneNew&&e.propertyName==='transform') finalize(); },{once:true});
+  dnAnimT=setTimeout(finalize,320);
 }
 function closeDetail(){ clearTimeout(quizT); quiz=null; $('detail').classList.remove('on'); $('backfab').classList.remove('on');
   $('retryFab').classList.remove('show');
@@ -1141,11 +1194,13 @@ function finishQ(q,ok){
       const _dbgMem1=memSnap();
       const recentLog=(window._fbLog||[]).slice(-6).join('\n');
       const recentLT=(window._longtasks||[]).slice(-6).join('\n')||'(감지된 longtask 없음)';
+      const recentLAF=(window._longFrames||[]).slice(-4).join('\n')||'(long-animation-frame 미지원 또는 없음)';
       showDelayDebug('타입'+_dbgType+' 문항 전환 지연 감지\n예정 1100ms -> 실제 '+_dbgWait.toFixed(0)+'ms\n'
         +'finishQ 동기실행: '+(_dbgT1-_dbgT0).toFixed(1)+'ms / preload호출: '+(_dbgT2-_dbgT1).toFixed(1)+'ms\n'
         +'다음문제 렌더(renderQ): '+(_dbgT4-_dbgT3).toFixed(1)+'ms\n'
         +'첫 프레임 그려짐(rAF1): '+(_dbgRaf1!==null?(_dbgRaf1-_dbgT1).toFixed(1):'미도달')+'ms 후 / 다음 프레임(rAF2): '+(_dbgRaf2!==null?(_dbgRaf2-_dbgT1).toFixed(1):'미도달')+'ms 후\n'
         +'JS힙메모리: 시작 '+_dbgMem0+' -> 종료 '+_dbgMem1+'\n'
+        +'--- 상세분석(long-animation-frame, 스크립트vs렌더링 구분) ---\n'+recentLAF+'\n'
         +'--- 롱태스크(메인스레드 50ms+ 점유) 로그 ---\n'+recentLT+'\n'
         +'--- Firebase/가시성 이벤트 로그(지금 시각 '+_dbgT0.toFixed(0)+'ms) ---\n'+recentLog);
     }
