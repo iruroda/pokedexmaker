@@ -1032,28 +1032,36 @@ function renderQ(dir){
         `<div class="qzopt${review&&o.no===q.pickNo?' picked':''}" data-no="${o.no}" data-ok="${o.ok?1:0}"><img src="${TH(o.no,o.k)}" alt="${esc(o.nm)}" draggable="false"><div class="qzname">${esc(o.nm)}</div></div>`).join('')}</div></div>`;
   }
   if(dir && wrap.children.length){
-    const w=wrap.firstElementChild.getBoundingClientRect().width;
+    const fullW=wrap.getBoundingClientRect().width; // wrap 자체의 전체 폭(좌우 padding 포함) = 실제 화면에 보이는 폭
+    const wcs=getComputedStyle(wrap);
+    const padT=parseFloat(wcs.paddingTop)||0, padR=parseFloat(wcs.paddingRight)||0,
+          padB=parseFloat(wcs.paddingBottom)||0, padL=parseFloat(wcs.paddingLeft)||0;
     const oldHTML=wrap.innerHTML;
     quiz.busy=true;
     /* 새 문제와 이전 문제를 완전히 독립된 절대좌표 두 판으로 만들어 같은 속도로
        반대편에서 들어오고 반대편으로 나가게 한다(둘 다 같은 duration/easing로
-       동시에 움직이는 '푸시' 전환). 클리핑은 콘텐츠 폭(w)에 정확히 맞춘, 움직이지
-       않는 정적 컨테이너(clip)가 담당해서 wrap 자체 padding과 무관하게 잔상 없이
-       딱 잘리게 한다. */
+       동시에 움직이는 '푸시' 전환). 슬라이딩 기준 폭을 콘텐츠 폭이 아니라 wrap의
+       좌우 padding까지 포함한 전체 폭(fullW)으로 잡아서, 화면 여백 안쪽이 아니라
+       진짜 화면 가장자리에서 나타나고 사라지게 한다. clip은 wrap의 padding을 음수
+       margin으로 상쇄해 padding-box 전체를 덮고, 각 pane에는 wrap이 갖고 있던
+       padding을 그대로 옮겨 붙여서 화면에 보이는 내용 위치는 그대로 유지한다. */
     const clip=document.createElement('div'); clip.className='qzclip';
-    clip.style.cssText='position:relative;overflow:hidden;width:'+w+'px;margin:0 auto;';
+    clip.style.cssText='position:relative;overflow:hidden;width:'+fullW+'px;'
+      +'margin:0 -'+padR+'px 0 -'+padL+'px;';
     const paneOld=document.createElement('div'); paneOld.className='qzpane';
-    paneOld.style.cssText='position:absolute;top:0;left:0;width:'+w+'px;';
+    paneOld.style.cssText='position:absolute;top:0;left:0;width:'+fullW+'px;box-sizing:border-box;'
+      +'padding:'+padT+'px '+padR+'px '+padB+'px '+padL+'px;';
     paneOld.innerHTML=oldHTML;
     const paneNew=document.createElement('div'); paneNew.className='qzpane';
-    paneNew.style.cssText='position:absolute;top:0;left:0;width:'+w+'px;';
+    paneNew.style.cssText='position:absolute;top:0;left:0;width:'+fullW+'px;box-sizing:border-box;'
+      +'padding:'+padT+'px '+padR+'px '+padB+'px '+padL+'px;';
     paneNew.innerHTML=html;
     clip.appendChild(paneOld); clip.appendChild(paneNew);
     wrap.innerHTML=''; wrap.appendChild(clip);
     const oldH=paneOld.offsetHeight, newH=paneNew.offsetHeight;
     clip.style.height=Math.max(oldH,newH)+'px';
-    const enterFrom = dir==='qznx' ? w : -w;   // 새 화면이 들어오는 시작 위치(다음:오른쪽에서, 이전:왼쪽에서)
-    const exitTo    = dir==='qznx' ? -w : w;   // 이전 화면이 나가는 도착 위치(다음:왼쪽으로, 이전:오른쪽으로)
+    const enterFrom = dir==='qznx' ? fullW : -fullW;   // 새 화면이 들어오는 시작 위치(다음:오른쪽에서, 이전:왼쪽에서)
+    const exitTo    = dir==='qznx' ? -fullW : fullW;   // 이전 화면이 나가는 도착 위치(다음:왼쪽으로, 이전:오른쪽으로)
     paneOld.style.transform='translateX(0)';
     paneNew.style.transform=`translateX(${enterFrom}px)`;
     void clip.offsetWidth;
@@ -1083,6 +1091,9 @@ function finishQ(q,ok){
   if(ok) quiz.correct++;
   showResult(ok);
   const _dbgT1=performance.now();
+  let _dbgRaf1=null,_dbgRaf2=null;
+  requestAnimationFrame(()=>{ _dbgRaf1=performance.now();
+    requestAnimationFrame(()=>{ _dbgRaf2=performance.now(); }); });
   const nq=quiz.list[quiz.answered];
   if(nq){ const nf=nq.p.fm[0]; preload(TH(nq.p.no,nf.k)); }
   const _dbgT2=performance.now();
@@ -1096,7 +1107,8 @@ function finishQ(q,ok){
     if(_dbgWait>1500){
       showDelayDebug('타입'+_dbgType+' 문항 전환 지연 감지\n예정 1100ms -> 실제 '+_dbgWait.toFixed(0)+'ms\n'
         +'finishQ 동기실행: '+(_dbgT1-_dbgT0).toFixed(1)+'ms / preload호출: '+(_dbgT2-_dbgT1).toFixed(1)+'ms\n'
-        +'다음문제 렌더(renderQ): '+(_dbgT4-_dbgT3).toFixed(1)+'ms');
+        +'다음문제 렌더(renderQ): '+(_dbgT4-_dbgT3).toFixed(1)+'ms\n'
+        +'첫 프레임 그려짐(rAF1): '+(_dbgRaf1!==null?(_dbgRaf1-_dbgT1).toFixed(1):'미도달')+'ms 후 / 다음 프레임(rAF2): '+(_dbgRaf2!==null?(_dbgRaf2-_dbgT1).toFixed(1):'미도달')+'ms 후');
     }
   },1100);
 }
@@ -1151,8 +1163,25 @@ function warmupQzTypes(){
   void w.offsetHeight;
   requestAnimationFrame(()=>{ void w.offsetHeight; });
 }
+/* 정답 확인시 뜨는 O/X 오버레이(.qzresult, qzpop 애니메이션)도 세션 중 최초 1회는
+   SVG 래스터/합성 레이어 생성 비용이 처음으로 발생해 지연의 원인이 될 수 있어서
+   화면 밖에서 미리 한 번 그려 예열해둔다. */
+function warmupQzResult(){
+  let w=document.getElementById('qzresultwarmup');
+  if(w) w.remove();
+  const d=document.createElement('div'); d.id='qzresultwarmup'; d.className='qzresult';
+  d.style.cssText='position:absolute;left:-9999px;top:-9999px;pointer-events:none;';
+  d.innerHTML='<svg viewBox="0 0 200 200" width="184" height="184">'
+    +'<circle cx="100" cy="100" r="80" fill="none" stroke="#fff" stroke-width="28"/>'
+    +'<circle cx="100" cy="100" r="80" fill="none" stroke="#3C72DC" stroke-width="20"/></svg>';
+  document.body.appendChild(d);
+  void d.offsetHeight;
+  requestAnimationFrame(()=>{ void d.offsetHeight;
+    requestAnimationFrame(()=>{ const cur=document.getElementById('qzresultwarmup'); if(cur) cur.remove(); }); });
+}
 warmupQzTypes();
-document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='visible') warmupQzTypes(); });
+warmupQzResult();
+document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='visible'){ warmupQzTypes(); warmupQzResult(); } });
 /* 상세/퀴즈 페이지 스크롤 중 하단 플로팅 버튼 부드럽게 숨김, 멈추면 잠시 후 다시 표시 */
 (function(){ const bf=$('backfab'); let t;
   $('detail').addEventListener('scroll',()=>{ bf.classList.add('fade');
