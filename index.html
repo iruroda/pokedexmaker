@@ -140,8 +140,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun 
 .grid .cell .no{font-size:9px;color:var(--sub);font-variant-numeric:tabular-nums;line-height:12px;
  display:flex;align-items:center;justify-content:center;gap:3px}
 .grid .cell .no .lkico{display:inline-flex;flex:0 0 auto}
-.lkico img,.lkico svg{width:12px;height:12px;display:block}
-.lkico img{transform:scale(.75)}
+.grid .cell .no .lkico img,.grid .cell .no .lkico svg{width:12px;height:12px;display:block}
+.grid .cell .no .lkico img{transform:scale(.75)}
 .grid .cell .nm{font-size:10.5px;font-weight:700;line-height:1.25;letter-spacing:-.5px;word-break:keep-all;margin-top:1px}
 /* ===== 잠금해제 시스템: 그리드 실루엣/모노톤 ===== */
 .grid .cell.lkloc{cursor:default}
@@ -160,7 +160,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun 
 .dtop .ttl{flex:1;text-align:center;font-size:13px;font-weight:800;letter-spacing:-.3px}
 
 /* ===== 상세 헤더: 도감번호 · 이름 · 폼이름(오른쪽) ===== */
-.dhead{display:flex;align-items:baseline;flex-wrap:nowrap;gap:2px 8px;padding:12px 12px 2px;overflow:hidden;min-height:44px;box-sizing:border-box}
+.dhead{display:flex;align-items:center;flex-wrap:nowrap;gap:2px 8px;padding:12px 12px 2px;overflow:hidden;min-height:44px;box-sizing:border-box}
 .dhead .dno{font-size:16px;font-weight:800;color:var(--sub);font-variant-numeric:tabular-nums;letter-spacing:-.2px;line-height:1.15;flex:0 0 auto;white-space:nowrap}
 .dhead .dname{font-size:22px;font-weight:800;letter-spacing:-.8px;line-height:1.15;flex:0 0 auto;min-width:0;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .dhead .dform{font-size:16px;font-weight:700;color:var(--sub);letter-spacing:-.3px;line-height:1.15;flex:0 1 auto;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -218,7 +218,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun 
 .abtn.hid{background:#eef4fc;border-color:#cfe0f5;color:#1565c0}
 /* ===== 잠금해제 시스템: 상세페이지 블랭크(사용자 제공 blank/blank_2 에셋 사용) ===== */
 .tyblank{display:inline-flex;align-items:center;justify-content:center;width:76px;height:23px;
- border-radius:999px;background:#fafafa}
+ border-radius:999px;background:#e6e6e6}
 .typerow .tyblank img{width:16px;height:16px;display:block;object-fit:contain;filter:brightness(0) invert(1)}
 .blankicon{display:flex;align-items:center;justify-content:center;margin-bottom:4px}
 .blankicon img{width:28px;height:28px;display:block;object-fit:contain;opacity:.85}
@@ -236,7 +236,7 @@ table.st{width:100%;border-collapse:collapse;table-layout:fixed;
  font-variant-numeric:tabular-nums;text-align:center}
 table.st th{background:#fafafa;color:#1a1a1a;font-size:13px;font-weight:700;
  height:30px;padding:0 1px;border:1px solid #e6e6e6;letter-spacing:-1px;line-height:1.1;white-space:nowrap;vertical-align:middle}
-table.st td{font-size:15px;font-weight:800;height:30px;padding:0 1px;border:1px solid #e6e6e6;vertical-align:middle}
+table.st td{font-size:15px;font-weight:800;height:30px;padding:0 1px;border:1px solid #e6e6e6;vertical-align:middle;background:#fff}
 table.st th.t,table.st td.t{background:#eef4fc;color:var(--accent);border-color:#cfe0f5}
 table.st td.up{color:#1b7f36;background:#f1faf3}
 table.st td.dn{color:#b03a3a;background:#fdf3f3}
@@ -1130,7 +1130,8 @@ function nearestDiscovered(from,dir){
   },{passive:true});
 })();
 function closeOv(){ $('ov').classList.remove('on');
-  if(quizEndFlag){ quizEndFlag=false; quiz=null; closeDetail(); } }
+  if(quizEndFlag){ quizEndFlag=false; quiz=null; closeDetail(); }
+  else if(pendingCongrats){ pendingCongrats=false; showCongratsPopup(); } }
 function reviewQuiz(){ $('ov').classList.remove('on'); quizEndFlag=false;
   if(!quiz) return; quiz.view=quiz.n-1; renderQ(); }
 function startRetryQuiz(){
@@ -1166,13 +1167,15 @@ document.addEventListener('keydown',e=>{
 
 /* ===== 퀴즈 ===== */
 const QTYPES=['노말','불꽃','물','전기','풀','얼음','격투','독','땅','비행','에스퍼','벌레','바위','고스트','드래곤','악','강철','페어리'];
-let quiz=null, quizEndFlag=false, quizTransitionToken=0;
+let quiz=null, quizEndFlag=false, quizTransitionToken=0, pendingCongrats=false;
 /* ===== 잠금해제 시스템: 대상 범위/상태 계산 =====
-   대형 수정이라 테스트 먼저(1~12번, 버터플까지)만 신규 잠금해제 시스템을 적용하고
+   대형 수정이라 테스트 먼저 일부 번호만 신규 잠금해제 시스템을 적용하고
    그 이후 번호는 기존 방식(항상 완전 공개) 그대로 유지한다. 테스트 통과 후
-   LOCK_MAX_NO를 전체 범위로 넓히면 전체 적용됨. */
-const LOCK_MAX_NO = 4; /* 30차: 도감내용 항목단위 해금 재설계 빠른 테스트를 위해 12→4(파이리까지)로 축소 */
-function inLockScope(no){ return no<=LOCK_MAX_NO; }
+   LOCK_SCOPE_LIST를 전체 범위로 넓히면 전체 적용됨. */
+const LOCK_SCOPE_LIST = [1,2,3,128]; /* 31차: 파이리(4) 대신 켄타로스(128, 폼별 qz분리+dxg 크로스그룹 케이스 포함)로 교체해 마지막 테스트 진행 */
+const LOCK_SCOPE_SET = new Set(LOCK_SCOPE_LIST);
+const LOCK_SCOPE_KEY = LOCK_SCOPE_LIST.join(',');
+function inLockScope(no){ return LOCK_SCOPE_SET.has(no); }
 function ensureFRec(no,k){ if(!PROG.f[no]) PROG.f[no]={}; if(!PROG.f[no][k]) PROG.f[no][k]={}; return PROG.f[no][k]; }
 function fieldDone(no,k,dim){ const r=PROG.f[no]&&PROG.f[no][k]; return !!(r&&r[dim]); }
 function markField(no,k,dim){ const r=ensureFRec(no,k); if(r[dim]) return false; r[dim]=1; return true; }
@@ -1293,7 +1296,7 @@ function buildExtraForms(){
 }
 let _extraCache=null;
 function extraForms(){ return _extraCache||(_extraCache=buildExtraForms()); }
-/* 잠금해제 대상 범위(LOCK_MAX_NO 이하) 안에서 아직 안 푼 퀴즈가 우선 출제되도록
+/* 잠금해제 대상 범위(LOCK_SCOPE_LIST) 안에서 아직 안 푼 퀴즈가 우선 출제되도록
    5개 차원(타입/분류·키·몸무게/특성/종족값/도감설명) 단위로 나눈 전체 문제 후보 목록 */
 function allQuizUnits(){
   const out=[];
@@ -1322,9 +1325,9 @@ function allQuizUnits(){
 function startQuiz(n){
   closeAC(); closeSide();
   warmupQzResult();
-  /* 잠금해제 대상 범위(1~LOCK_MAX_NO) 안의 5개 차원 단위 풀에서만 출제한다
+  /* 잠금해제 대상 범위(LOCK_SCOPE_LIST) 안의 5개 차원 단위 풀에서만 출제한다
      ("아직 안 푼 문제 우선, 부족할 때만 이미 맞힌 문제로 보충"). 범위 밖 종은
-     그리드/검색에서도 숨겨진 테스트 기간 동안 퀴즈에도 나오지 않는다. LOCK_MAX_NO를
+     그리드/검색에서도 숨겨진 테스트 기간 동안 퀴즈에도 나오지 않는다. LOCK_SCOPE_LIST를
      전체 범위로 넓히면 이 범위가 자연히 전체 도감이 되어 별도 수정 없이 전체 적용된다. */
   const dimType={ty:1,ct:2,ab:3,st:4,dx:5};
   const units=allQuizUnits();
@@ -1701,21 +1704,25 @@ function endQuiz(){
 /* 29차: 메인 페이지로 돌아온 시점에 (1) 도감 전체(현재 잠금해제 범위 기준) 완성 축하 팝업,
    (2) 그게 아니면 새로 완성된 포켓몬이 있을 때 알림 팝업을 띄운다. 둘 다 #ov 팝업 재사용(일관성).
    PROG.ntf = 이미 알림을 보여준 포켓몬 번호 집합, PROG.cgAt = 축하 팝업을 보여준 시점의
-   LOCK_MAX_NO 값(테스트 스코프 확장 시 자동으로 다시 뜨도록 boolean 대신 값으로 기록). */
+   LOCK_SCOPE_KEY 값(테스트 스코프 확장 시 자동으로 다시 뜨도록 boolean 대신 값으로 기록).
+   31차: 개별 완성 알림과 전체완성 축하가 동시에 발생하면(예: 마지막 한 마리를 완성하는
+   동시에 전체 스코프도 끝나는 경우) 축하 팝업만 뜨고 개별 알림이 묻히던 문제를 수정 —
+   이제 개별 알림을 먼저 띄우고, 그 팝업을 닫으면(pendingCongrats) 이어서 축하 팝업을 띄운다. */
 function checkCompletionPopup(){
   if(!loggedIn) return;
   const scopeList=D.m.filter(p=>inLockScope(p.no));
   if(!scopeList.length) return;
   PROG.ntf=PROG.ntf||{};
   const allDone=scopeList.every(p=>dexState(p.no)==='complete');
-  if(allDone && PROG.cgAt!==LOCK_MAX_NO){
-    PROG.cgAt=LOCK_MAX_NO;
+  const newly=scopeList.filter(p=>dexState(p.no)==='complete'&&!PROG.ntf[p.no]);
+  if(allDone && PROG.cgAt!==LOCK_SCOPE_KEY){
+    PROG.cgAt=LOCK_SCOPE_KEY;
     scopeList.forEach(p=>{ PROG.ntf[p.no]=1; });
     saveProgress();
-    showCongratsPopup();
+    if(newly.length){ pendingCongrats=true; showNewlyCompletedPopup(newly); }
+    else showCongratsPopup();
     return;
   }
-  const newly=scopeList.filter(p=>dexState(p.no)==='complete'&&!PROG.ntf[p.no]);
   if(newly.length){
     newly.forEach(p=>{ PROG.ntf[p.no]=1; });
     saveProgress();
