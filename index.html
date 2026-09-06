@@ -166,9 +166,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun 
 .dhead .dgd{margin-left:auto;display:inline-flex;gap:5px;align-items:center;flex:0 0 auto}
 .dhead .dgd .gi{width:22px;height:22px;display:block}
 .dhead .dgd .gi.gr{filter:grayscale(1);opacity:.32}
-.dhead .dno{display:inline-flex;align-items:center;gap:4px}
-.dhead .dno .lkico{display:inline-flex;flex:0 0 auto}
-.dhead .dno .lkico img,.dhead .dno .lkico svg{width:22px;height:22px}
+.dhead .dno .lkico{display:inline-block;vertical-align:middle;margin-right:4px}
+.dhead .dno .lkico img,.dhead .dno .lkico svg{width:22px;height:22px;vertical-align:middle}
 /* ===== 상세: 사진 1 : 정보 1 — 모든 포켓몬 동일 고정 틀(특성 2줄 기준) ===== */
 :root{--heroH:177px}
 .hero{display:flex;gap:10px;padding:6px 12px 4px;align-items:stretch;height:calc(var(--heroH) + 10px)}
@@ -217,15 +216,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun 
 .abtn:active{background:#e2e5ea}
 .abtn.hid{background:#eef4fc;border-color:#cfe0f5;color:#1565c0}
 /* ===== 잠금해제 시스템: 상세페이지 블랭크(사용자 제공 blank/blank_2 에셋 사용) ===== */
-.tyblank{display:inline-flex;align-items:center;justify-content:center;width:76px;height:30px;
+.tyblank{display:inline-flex;align-items:center;justify-content:center;width:76px;height:23px;
  border-radius:999px;background:#eceef1}
-.tyblank img{width:20px;height:20px;display:block;object-fit:contain;filter:brightness(0) invert(1)}
+.typerow .tyblank img{width:16px;height:16px;display:block;object-fit:contain;filter:brightness(0) invert(1)}
 .blankicon{display:flex;align-items:center;justify-content:center;margin-bottom:4px}
 .blankicon img{width:28px;height:28px;display:block;object-fit:contain;opacity:.85}
 .dexrow .tx .blankicon{height:auto!important;margin:0;justify-content:center}
 .qzablist{height:auto;min-height:34px}
 .qzdesc.qzabbox,.qzdesc.qzstbox{padding:14px 14px}
 .qzdesc.qzstbox table.st{margin-top:2px}
+.qzdesc.qzdxbox{line-height:1.4}
 .sec{padding:0 12px calc(80px + env(safe-area-inset-bottom))}
 .sec h3{font-size:15px;color:var(--accent);font-weight:800;letter-spacing:.3px;margin:16px 0 8px;
  display:flex;align-items:center;gap:6px}
@@ -259,7 +259,6 @@ table.st td.dn{color:#b03a3a;background:#fdf3f3}
 .evoi.cur img{filter:drop-shadow(0 2px 5px rgba(21,101,192,.3))}
 .evoi.lkloc{cursor:default}
 .evoi.lkloc img{filter:brightness(0) invert(.902)}
-.evoi.lkpar img{filter:grayscale(1)}
 .evoc{flex:0 0 auto;text-align:center;font-size:10px;color:#8a8f96;font-weight:700;
  line-height:1.3;word-break:keep-all;width:52px}
 .evoc .ar{font-size:15px;color:var(--accent);display:block;line-height:1;margin-bottom:2px}
@@ -295,6 +294,12 @@ table.st td.dn{color:#b03a3a;background:#fdf3f3}
 #ov .ovbox:active{background:#f2f6fb}
 #ov .ovbox.plain{border:none;background:none;color:var(--sub);font-weight:700;padding:6px}
 #ov .ovbox.plain:active{background:none;opacity:.6}
+/* 29차: 도감 완성 알림 팝업 내부 목록 — 검색 자동완성(.acit)과 동일한 형태(썸네일·번호·이름) */
+#ov .ovlist{margin-top:10px;max-height:220px;overflow-y:auto;border-top:1px solid var(--line)}
+#ov .ovit{display:flex;align-items:center;gap:10px;padding:7px 2px;border-bottom:1px solid var(--line)}
+#ov .ovit img{width:36px;height:36px;object-fit:contain;flex-shrink:0}
+#ov .ovit .ovno{font-size:11px;color:#8b8b8b;font-variant-numeric:tabular-nums;flex-shrink:0;width:46px}
+#ov .ovit .ovnm{font-size:14.5px;font-weight:700;letter-spacing:-.3px;word-break:keep-all}
 #toast{position:fixed;left:50%;bottom:56px;transform:translate(-50%,10px);z-index:300;
  background:rgba(20,20,20,.9);color:#fff;font-size:12.5px;font-weight:700;padding:10px 18px;
  border-radius:999px;opacity:0;pointer-events:none;transition:.2s;white-space:nowrap}
@@ -582,17 +587,17 @@ let loggedIn = false;
    PROG.dx[no][dgIdx] = 1        (해당 종의 그 도감설명 그룹을 맞혔는지)
    비로그인(게스트)일 때는 PROG를 항상 빈 상태로 유지 → 그리드/상세가 항상 처음
    실루엣 상태로 보임(사용자 지시: "그냥 계속 처음 실루엣인 상태임"). */
-let PROG = { f:{}, dx:{} };
+let PROG = { f:{}, dx:{}, ntf:{}, cgAt:0 };
 let progUid = null;
 function loadProgress(uid){
   return firebase.firestore().collection('dexProgress').doc(uid).get().then(doc=>{
     const d = doc.exists ? doc.data() : null;
-    PROG = { f:(d&&d.f)||{}, dx:(d&&d.dx)||{} };
-  }).catch(()=>{ PROG = { f:{}, dx:{} }; });
+    PROG = { f:(d&&d.f)||{}, dx:(d&&d.dx)||{}, ntf:(d&&d.ntf)||{}, cgAt:(d&&d.cgAt)||0 };
+  }).catch(()=>{ PROG = { f:{}, dx:{}, ntf:{}, cgAt:0 }; });
 }
 function saveProgress(){
   if(!progUid) return;
-  firebase.firestore().collection('dexProgress').doc(progUid).set({ f:PROG.f, dx:PROG.dx }).catch(()=>{});
+  firebase.firestore().collection('dexProgress').doc(progUid).set({ f:PROG.f, dx:PROG.dx, ntf:PROG.ntf, cgAt:PROG.cgAt }).catch(()=>{});
 }
 function setAuthUI(state, label){
   const g = $('mgreet');
@@ -637,8 +642,9 @@ if(fbReady){
         setAuthUI(isAdmin ? 'admin' : 'in', label);
       }).catch(()=> { setAuthUI('in', label); });
       loadProgress(user.uid).then(()=>{ renderGrid();
-        if(cur!=null && $('detail').classList.contains('on') && !quiz) re(true); });
-    } else { loggedIn = false; progUid = null; PROG = { f:{}, dx:{} }; setAuthUI('out'); renderGrid(); }
+        if(cur!=null && $('detail').classList.contains('on') && !quiz) re(true);
+        else checkCompletionPopup(); });
+    } else { loggedIn = false; progUid = null; PROG = { f:{}, dx:{}, ntf:{}, cgAt:0 }; setAuthUI('out'); renderGrid(); }
   });
 } else { setAuthUI('out'); }
 /* 퀴즈와 동일한 섹션 접기 동작 */
@@ -732,7 +738,7 @@ function acMatch(f){
   const list = (/^\d+$/.test(f)
     ? D.m.filter(p=>String(p.no).startsWith(f))
     : D.m.filter(p=>p.nm.toLowerCase().startsWith(f))
-  ).filter(p=>inLockScope(p.no));
+  ).filter(p=>inLockScope(p.no) && dexState(p.no)!=='locked');
   return list.slice(0,40);
 }
 function renderAC(){
@@ -841,6 +847,7 @@ function closeDetail(){
   $('retryFab').classList.remove('show');
   document.body.style.overflow='';
   refreshStaleGridCells();
+  checkCompletionPopup();
 }
 function re(keep){ const el=$('detail'),s=keep?el.scrollTop:0;
   el.innerHTML=build(cur); el.scrollTop=s; bind(el); }
@@ -1032,18 +1039,18 @@ function build(no){
       <div class="kv"><span class="k">키</span><span class="v">${ctOk?esc(fmtH(f.h,f)):'???.?m'}</span>
         <span class="k" style="margin-left:16px">몸무게</span><span class="v">${ctOk?esc(fmtW(f.w,f)):'???.?kg'}</span></div>
       <div class="ablk"><span class="k">특성</span>
-        ${abOk?`<div class="ablist">${f.ab.map(a=>`<span class="abtn ${a.h?'hid':''}" data-ab="${esc(a.n)}" data-h="${a.h}">${esc(a.n)}</span>`).join('')}</div>`:blankIconHTML(50)}</div>
+        ${abOk?`<div class="ablist">${f.ab.map(a=>`<span class="abtn ${a.h?'hid':''}" data-ab="${esc(a.n)}" data-h="${a.h}">${esc(a.n)}</span>`).join('')}</div>`:blankIconHTML(62)}</div>
     </div></div>
   <div class="sec">
     <h3>능력치</h3>
     ${stOk?`<table class="st"><tr>${SL.map(l=>`<th>${l}</th>`).join('')}<th class="t">합계</th></tr>
-      <tr>${f.st.map((v,i)=>`<td class="${chg(p,f,i)}">${v}</td>`).join('')}<td class="t">${f.to}</td></tr></table>`:blankIconHTML(70)}
-    <h3>도감 설명</h3>
+      <tr>${f.st.map((v,i)=>`<td class="${chg(p,f,i)}">${v}</td>`).join('')}<td class="t">${f.to}</td></tr></table>`:blankIconHTML(61)}
+    <h3>도감 내용</h3>
     ${dx.length?`<div>${shown.map(d=>`<div class="dexrow">
       <div class="vs">${d.v.map(v=>vbadge(v)).join('')}</div>
       <div class="tx">${dxOk?esc(d.t):blankIconHTML(34)}</div></div>`).join('')}</div>
-      ${rest>0?`<button class="more" id="moreBtn">${dexOpen?'접기 ▲':'도감 설명 더 보기 ▼'}</button>`:''}`
-      :'<div class="noevo">도감 설명이 없습니다</div>'}
+      ${rest>0?`<button class="more" id="moreBtn">${dexOpen?'접기 ▲':'도감 내용 더 보기 ▼'}</button>`:''}`
+      :'<div class="noevo">도감 내용이 없습니다</div>'}
     <h3>진화</h3>
     ${evoHTML(no)}
   </div></div>`;
@@ -1098,6 +1105,15 @@ function bind(el){
     pic.onclick=()=>{ $('imgovImg').src=pic.dataset.lg||pic.src; $('imgov').classList.add('on'); };
   }
 }
+/* 상세페이지 이전/다음 이동: 미발견(잠김) 포켓몬은 건너뛰고 발견된 것 중 가장 가까운 번호로 이동 */
+function nearestDiscovered(from,dir){
+  let no=from+dir;
+  while(M[no]&&inLockScope(no)){
+    if(dexState(no)!=='locked') return no;
+    no+=dir;
+  }
+  return null;
+}
 /* 좌우 스와이프 = 앞/뒤 포켓몬 (리스너는 #detail에 딱 1회만 등록 → 워프 버그 방지) */
 (function(){ const el=$('detail'); let x0=null,y0=null;
   el.addEventListener('touchstart',e=>{x0=e.touches[0].clientX;y0=e.touches[0].clientY},{passive:true});
@@ -1105,8 +1121,8 @@ function bind(el){
     if(x0===null||!cur||!el.classList.contains('on')) return;
     const dx=e.changedTouches[0].clientX-x0, dy=e.changedTouches[0].clientY-y0; x0=null;
     if(Math.abs(dx)<60||Math.abs(dx)<Math.abs(dy)*1.4) return;
-    if(dx<0){ if(M[cur+1]&&inLockScope(cur+1)) navPoke(cur+1,'nx'); else toast('마지막 포켓몬입니다.'); }
-    else    { if(M[cur-1]&&inLockScope(cur-1)) navPoke(cur-1,'pv'); else toast('첫 번째 포켓몬입니다.'); }
+    if(dx<0){ const nx=nearestDiscovered(cur,1); if(nx) navPoke(nx,'nx'); else toast('마지막 포켓몬입니다.'); }
+    else    { const pv=nearestDiscovered(cur,-1); if(pv) navPoke(pv,'pv'); else toast('첫 번째 포켓몬입니다.'); }
   },{passive:true});
 })();
 function closeOv(){ $('ov').classList.remove('on');
@@ -1140,8 +1156,8 @@ document.addEventListener('keydown',e=>{
     else if($('side').classList.contains('on')) closeSide();
     else closeDetail(); return; }
   if(!$('detail').classList.contains('on')||!cur||quiz) return;
-  if(e.key==='ArrowLeft'&&M[cur-1]&&inLockScope(cur-1)) navPoke(cur-1,'pv');
-  if(e.key==='ArrowRight'&&M[cur+1]&&inLockScope(cur+1)) navPoke(cur+1,'nx');
+  if(e.key==='ArrowLeft'){ const pv=nearestDiscovered(cur,-1); if(pv) navPoke(pv,'pv'); }
+  if(e.key==='ArrowRight'){ const nx=nearestDiscovered(cur,1); if(nx) navPoke(nx,'nx'); }
 });
 
 /* ===== 퀴즈 ===== */
@@ -1211,6 +1227,19 @@ function dexState(no){
 function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
 function qNum(s){ const n=parseFloat(String(s).replace(/[^0-9.]/g,'')); return isNaN(n)?null:n; }
 function quizPool(){ return D.m.filter(p=>p.fm&&p.fm[0]&&p.fm[0].ty&&p.fm[0].ty.length&&qNum(p.fm[0].h)!=null&&qNum(p.fm[0].w)!=null); }
+/* 26차: 분류/키/몸무게 퀴즈와 동일한 이유로(22차 주석 참고) 특성/능력치 퀴즈도
+   정답과 완전히 똑같은 특성구성/종족값을 가진 다른 포켓몬(예: 같은 진화계열끼리
+   특성이 100% 동일한 경우가 매우 흔함, 종족값도 이상형포켓몬군처럼 완전히 같은
+   쌍이 실재함)이 오답 후보로 같이 나오면 보기만 보고는 구분이 불가능해 후보에서
+   아예 제외해야 함. */
+function sameAbilitySet(a,b){
+  const ak=(a||[]).map(x=>x.n).slice().sort().join('|');
+  const bk=(b||[]).map(x=>x.n).slice().sort().join('|');
+  return !!ak && ak===bk;
+}
+function sameStats(a,b){
+  return Array.isArray(a)&&Array.isArray(b)&&a.length===6&&b.length===6&&a.every((v,i)=>v===b[i]);
+}
 /* 24차: 퀴즈 대상 폼 화이트리스트 통합 — "두 퀴즈는 대상이 같다"는 지시에 따라
    HW_EXTRA/TY_EXTRA 이원 명시목록을 폐지하고, 메가진화(폼이름이 "메가"로 시작 —
    항상 포함) 또는 기본형과 스펙(분류/타입/특성/종족값 중 하나라도)이 실제로 다른
@@ -1373,7 +1402,8 @@ function renderQ(dir){
     /* 특성 퀴즈: 분류/키/몸무게와 같은 박스크기·6지선다 형식, 보기는 완전 무작위 */
     if(!q.options){
       const pool=[...quizPool().map(x=>({no:x.no,nm:x.nm,f:x.fm[0]})),
-        ...extraForms().map(x=>({no:x.p.no,nm:x.p.nm,f:x.f}))].filter(c=>c.no!==p.no);
+        ...extraForms().map(x=>({no:x.p.no,nm:x.p.nm,f:x.f}))]
+        .filter(c=>c.no!==p.no && !sameAbilitySet(c.f.ab,f.ab));
       const seenNo=new Set(); const uniq=[];
       shuffle(pool.slice()).forEach(c=>{ if(!seenNo.has(c.no)){ seenNo.add(c.no); uniq.push(c); } });
       const decoy=uniq.slice(0,5);
@@ -1389,7 +1419,8 @@ function renderQ(dir){
     if(!q.options){
       const total=f.to;
       const pool=[...quizPool().map(x=>({no:x.no,nm:x.nm,f:x.fm[0]})),
-        ...extraForms().map(x=>({no:x.p.no,nm:x.p.nm,f:x.f}))].filter(c=>c.no!==p.no);
+        ...extraForms().map(x=>({no:x.p.no,nm:x.p.nm,f:x.f}))]
+        .filter(c=>c.no!==p.no && !sameStats(c.f.st,f.st));
       const inRange=pool.filter(c=>Math.abs((c.f.to||0)-total)<=80);
       const seenNo=new Set(); const uniq=[];
       shuffle(inRange.slice()).forEach(c=>{ if(!seenNo.has(c.no)){ seenNo.add(c.no); uniq.push(c); } });
@@ -1430,7 +1461,7 @@ function renderQ(dir){
     }
     const maskedText=(q._descText||'').split(p.nm).join('???');
     html=`<div class="qzcol">${qzNavHTML()}${qzBadgeHTML(review,q.ok)}
-      <div class="qzq qzq2">아래 도감 설명에 해당하는 포켓몬은?</div>
+      <div class="qzq qzq2">아래 도감 내용에 해당하는 포켓몬은?</div>
       <div class="qzdesc qzdxbox">${esc(maskedText)}</div>
       <div class="qz2grid${review?' review':''}" id="qz2grid">${q.options.map(o=>
         `<div class="qzopt${review&&o.no===q.pickNo?' picked':''}" data-no="${o.no}" data-ok="${o.ok?1:0}"><img src="${TH(o.no,o.k)}" alt="${esc(o.nm)}" draggable="false"><div class="qzname">${esc(o.nm)}</div></div>`).join('')}</div></div>`;
@@ -1640,6 +1671,48 @@ function endQuiz(){
   $('ovC').textContent='메인으로 나가기'; $('ovC').classList.remove('plain');
   $('ov').classList.add('on');
   updateRetryFab();
+}
+/* 29차: 메인 페이지로 돌아온 시점에 (1) 도감 전체(현재 잠금해제 범위 기준) 완성 축하 팝업,
+   (2) 그게 아니면 새로 완성된 포켓몬이 있을 때 알림 팝업을 띄운다. 둘 다 #ov 팝업 재사용(일관성).
+   PROG.ntf = 이미 알림을 보여준 포켓몬 번호 집합, PROG.cgAt = 축하 팝업을 보여준 시점의
+   LOCK_MAX_NO 값(테스트 스코프 확장 시 자동으로 다시 뜨도록 boolean 대신 값으로 기록). */
+function checkCompletionPopup(){
+  if(!loggedIn) return;
+  const scopeList=D.m.filter(p=>inLockScope(p.no));
+  if(!scopeList.length) return;
+  PROG.ntf=PROG.ntf||{};
+  const allDone=scopeList.every(p=>dexState(p.no)==='complete');
+  if(allDone && PROG.cgAt!==LOCK_MAX_NO){
+    PROG.cgAt=LOCK_MAX_NO;
+    scopeList.forEach(p=>{ PROG.ntf[p.no]=1; });
+    saveProgress();
+    showCongratsPopup();
+    return;
+  }
+  const newly=scopeList.filter(p=>dexState(p.no)==='complete'&&!PROG.ntf[p.no]);
+  if(newly.length){
+    newly.forEach(p=>{ PROG.ntf[p.no]=1; });
+    saveProgress();
+    showNewlyCompletedPopup(newly);
+  }
+}
+function showNewlyCompletedPopup(list){
+  $('ovT').textContent=''; $('ovT').style.display='none'; $('ovTag').innerHTML='';
+  $('ovD').innerHTML = '도감 정보를 완성한 포켓몬이 있습니다. 확인하시겠습니까?'
+    + `<div class="ovlist">${list.map(p=>`<div class="ovit">`
+      + `<img src="${TH(p.no)}" alt="" loading="lazy" draggable="false">`
+      + `<span class="ovno">No.${pad(p.no)}</span>`
+      + `<span class="ovnm">${esc(p.nm)}</span></div>`).join('')}</div>`;
+  quizEndFlag=false; $('ovR').style.display='none'; $('ovX').style.display='none';
+  $('ovC').textContent='닫기'; $('ovC').classList.add('plain');
+  $('ov').classList.add('on');
+}
+function showCongratsPopup(){
+  $('ovT').textContent='축하합니다!'; $('ovT').style.textAlign='center'; $('ovT').style.display='block'; $('ovTag').innerHTML='';
+  $('ovD').textContent='포켓몬 도감을 훌륭하게 완성하였습니다.';
+  quizEndFlag=false; $('ovR').style.display='none'; $('ovX').style.display='none';
+  $('ovC').textContent='확인'; $('ovC').classList.remove('plain');
+  $('ov').classList.add('on');
 }
 
 /* 스크롤바 자동 숨김: 스크롤 중에만 thumb 표시 */
