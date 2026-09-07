@@ -1229,6 +1229,11 @@ function quizTargetForms(p){
    분류/키/몸무게(ct) 차원은 일반규칙(완전동일)으로는 안 걸리지만, 사용자가 지정한 대로 이 두
    종만 예외적으로 ct 차원을 앞 폼과 연결한다(하드코딩 — 자동 패턴탐지 아님, 임의 확장 금지). */
 const CT_LINK_EXCEPTIONS = { 925:{from:'02',to:'01'}, 982:{from:'02',to:'01'} };
+/* 36차: 아르세우스(493)는 17개 폼(2~18번)이 전부 자체 퀴즈가 없는데(qz 없음), 타입이
+   기본형(노말)과 실제로 다르다. CT_LINK_EXCEPTIONS(특정 폼 1개→1개, ct 전용)와 달리
+   "그 종의 특정 차원에서 비기본 폼 전부"를 기본형에 연결해야 하는 케이스라 별도 맵 추가.
+   사용자 지시: 폼별 퀴즈가 따로 없으면 내용이 달라도 기본형 차원이 풀릴 때 함께 풀린다. */
+const FULL_FORM_LINK_EXCEPTIONS = { 493:{ty:'01'} };
 function sameFieldContent(fa,fb,dim){
   if(dim==='ty') return JSON.stringify(fa.ty)===JSON.stringify(fb.ty);
   if(dim==='ct') return fa.ct===fb.ct && fa.h===fb.h && fa.w===fb.w;
@@ -1239,6 +1244,8 @@ function sameFieldContent(fa,fb,dim){
 function repFormKey(p,f,dim){
   const idx=p.fm.indexOf(f);
   if(idx<=0||f.qz) return f.k;
+  const fl=FULL_FORM_LINK_EXCEPTIONS[p.no];
+  if(fl&&fl[dim]) return fl[dim];
   const ex=CT_LINK_EXCEPTIONS[p.no];
   if(dim==='ct'&&ex&&f.k===ex.from) return ex.to;
   for(let i=0;i<idx;i++){ if(sameFieldContent(f,p.fm[i],dim)) return p.fm[i].k; }
@@ -1338,32 +1345,31 @@ function allQuizUnits(){
     });
     speciesDxGroupsUsed(p).forEach(g=>{
       const dx=dxGroupArr(p,g); if(!dx.length) return;
-      const rep=quizTargetForms(p).find(f=>(f.dg||0)===g)||p.fm[0];
-      const nonBaseForms=quizTargetForms(p).filter(f=>f!==p.fm[0]);
+      const targetForms=quizTargetForms(p);
+      const rep=targetForms.find(f=>(f.dg||0)===g)||p.fm[0];
+      const nonBaseForms=targetForms.filter(f=>f!==p.fm[0]);
       /* 30차: 그룹 전체가 아니라 항목(엔트리)마다 독립된 문제 단위를 생성 —
          하나를 맞혀도 그 항목만 해금되고, 나머지 항목은 각자 따로 풀어야 함 */
       dx.forEach((entry,ei)=>{
         let entryRep=rep;
-        /* 33차: 엔트리가 실제로 어느 폼(들)에 속하는지, 그 문장이 어느 그룹의
-           배열에 "물리적으로" 들어있는지가 아니라 어떤 비기본 폼들의 그룹에
-           "실제로 존재하는지"로 재판정한다(32차의 "기본형 엔트리만 검사" 방식은
-           반대 방향 — 비기본 그룹 소속인데 사실은 전체 공용인 경우 — 을
-           못 잡았음. 예: 캐스퐁 루비 텍스트는 기본형/태양/빗방울/설운 4그룹
-           모두에 동일하게 들어있는데, 이 엔트리를 비기본(태양) 그룹에서 순회할
-           때도 "전체 공용이니 기본형 이미지로" 판정해야 함).
-           - 비기본 폼 전부가 이 문장을 가지고 있으면(=진짜 범용 설명) → 기본형 대표.
-           - 비기본 폼 중 정확히 하나만 가지고 있으면(=그 폼 전용 내용, 기본형
-             그룹에 우연히 같은 문장이 중복 수록돼 있어도 무시) → 그 폼 대표.
-           - 아무 비기본 폼도 안 가지고 있으면(=이 그룹 고유 내용) → 원래 대표(rep) 유지.
-           - 그 외(일부만 공유, 애매한 경우) → 기본형 대표(여러 폼을 대표하는 것으로 간주).
-           34차: 비기본 대상폼이 정확히 1개뿐인 종(예: 야도킹=가라르, 보스로라=메가)에서는
-           "그 폼 자기 자신의 배열에 있는지" 검사가 자기 자신과 비교하는 셈이라 항상 1/1=
-           전원일치로 나와버려 고유 문구까지 전부 기본형으로 잘못 귀속되던 버그 수정 —
-           "전원일치" 판정은 비기본 대상폼이 2개 이상일 때만 의미가 있으므로 가드 추가.
-           (비기본 1개뿐일 때는 자동으로 두번째 분기로 내려가 그 폼 자신이 대표가 됨 —
-           켄타로스처럼 기본형 배열에 우연히 다른 폼과 완전동일한 문장이 중복 수록된 경우는
-           비기본 대상폼이 여러 개라 이 가드의 영향을 받지 않고 기존과 동일하게 동작함.) */
-        if(nonBaseForms.length){
+        if(p.dxg){
+          /* 35차: dxg로 폼별 도감내용 배열이 실제로 분리돼 있는 종에서는, 33차/34차의
+             "비기본 대상폼 개수 기반" 판정을 폐기하고 사용자가 제안한 더 단순하고 정확한
+             규칙으로 교체 — 퀴즈 대상폼을 이미지 번호(기본형이 항상 0번) 순으로 검사해서,
+             그 폼 "자기 자신"의 도감내용 배열에 이 문장이 있으면 그 폼이 정답. 기본형이
+             항상 먼저 검사되므로 문장이 기본형 배열에도 있으면(진짜 공용) 무조건 기본형이
+             이기고, 기본형엔 없고 특정 비기본폼 자기 배열에만 있으면 그 폼이 이긴다.
+             34차 가드가 놓쳤던 "비기본 대상폼이 1개뿐인데 그 문장이 기본형 배열에도
+             실제로 존재하는"(=진짜 공용) 경우(기라티나/쉐이미의 구버전 공용 설명)까지
+             정확히 처리한다. */
+          entryRep=targetForms.find(f=>dxGroupArr(p,f.dg||0).some(e=>e.t===entry.t))||rep;
+        } else if(nonBaseForms.length){
+          /* 35차: dxg 자체가 없이 dx 하나만 온 폼이 전부 공유하는 종(메가염무왕류)은
+             폼별 도감내용이 애초에 배열로 분리돼 있지 않아 "자기 배열에 있는지" 검사가
+             모든 폼에 대해 항상 참이 되므로(전부 같은 배열이라) 위 방식이 통하지 않는다.
+             이런 종은 이번 개편 대상에서 제외하고 34차까지의 개수 기반 판정을 그대로
+             유지한다(메가 전용 문구가 실제로 있는 종은 이 분기가 메가 이미지를 유지시켜줌).
+             근본 해결은 이런 종들을 하나씩 dxg 구조로 쪼개는 데이터 작업 — 별도 진행. */
           const nonBaseMatches=nonBaseForms.filter(f=>dxGroupArr(p,f.dg||0).some(e=>e.t===entry.t));
           if(nonBaseForms.length>1&&nonBaseMatches.length===nonBaseForms.length) entryRep=p.fm[0];
           else if(nonBaseMatches.length===1) entryRep=nonBaseMatches[0];
