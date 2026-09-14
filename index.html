@@ -158,6 +158,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun 
 .modal .btnrow button{flex:1;margin-top:0}
 .modal .btnrow .grayb{border:1px solid var(--line);border-radius:10px}
 .resetWarn{color:#F0567A;font-size:13px;line-height:1.5;margin:0 0 4px}
+.modalDesc{color:var(--text);font-size:13px;line-height:1.5;margin:0 0 4px}
 .holdbtn{position:relative;overflow:hidden;touch-action:none}
 .holdbtn .holdfill{position:absolute;left:0;top:0;bottom:0;width:0%;background:var(--accent);z-index:0}
 .holdbtn.filling .holdfill{transition:width 3s linear}
@@ -552,6 +553,14 @@ table.st td.dn{color:#b03a3a;background:#fdf3f3}
     <button class="secondary grayb" id="resetCancel" type="button">취소</button>
   </div>
 </div></div>
+<div class="modal" id="loadFailModal"><div class="box">
+  <h2>불러오기 실패</h2>
+  <div class="modalDesc">진행 상황을 불러오지 못했습니다. 재시도하시겠습니까?</div>
+  <div class="btnrow">
+    <button class="primary" id="loadFailConfirm" type="button">확인</button>
+    <button class="secondary grayb" id="loadFailCancel" type="button">취소</button>
+  </div>
+</div></div>
 <div id="detail"></div>
 <div id="backfab"><button id="retryFab" title="틀린 문제만 다시 풀기"><span>틀린 문제만</span><span>다시 풀기</span></button><button id="backBtn" title="메인으로" aria-label="메인으로"><svg viewBox="0 0 24 24" width="27" height="27" fill="none" stroke="#fff" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6 L4.5 10.5 L9 15"></path><path d="M4.5 10.5 H14.5 A5 5 0 0 1 14.5 20.5 H8"></path></svg></button></div>
 <div id="dov"></div>
@@ -744,6 +753,9 @@ $('resetConfirm').addEventListener('pointerup',cancelResetHold);
 $('resetConfirm').addEventListener('pointercancel',cancelResetHold);
 $('resetCancel').onclick=()=>{ cancelResetHold(); $('resetModal').classList.remove('on'); };
 $('resetModal').onclick=e=>{ if(e.target.id==='resetModal'){ cancelResetHold(); $('resetModal').classList.remove('on'); } };
+$('loadFailConfirm').onclick=()=>location.reload();
+$('loadFailCancel').onclick=()=>{ $('loadFailModal').classList.remove('on'); };
+$('loadFailModal').onclick=e=>{ if(e.target.id==='loadFailModal') $('loadFailModal').classList.remove('on'); };
 
 let profLabel=null;
 
@@ -794,18 +806,47 @@ let loggedIn = false;
    실루엣 상태로 보임(사용자 지시: "그냥 계속 처음 실루엣인 상태임"). */
 let PROG = { f:{}, dx:{}, ntf:{}, cgAt:0, av:null, solvedCount:0, unlockedAv:[], avPending:[], avNewBadge:[], ui:{} };
 let progUid = null;
-function loadProgress(uid){
+/* 27차: "페이지 나갔다가 들어오면 진행상황이 리셋된다"(#47) 근본원인 발견·수정 —
+   로그인 상태(firebase auth)는 로컬에 남아있어 유지되지만, 그 직후 실행되는
+   loadProgress()의 Firestore read가 (네트워크 순단·브라우저 광고/트래커 차단
+   확장 등으로) 실패하면 기존 코드는 catch에서 PROG를 통째로 빈 상태로
+   덮어썼음 — 로그인은 유지된 채로 화면만 "리셋된 것처럼" 보이는 게 1차 증상.
+   더 심각한 건 그 뒤: 이 빈 PROG 상태에서 사용자가 아무 상호작용(퀴즈 채점,
+   사이드메뉴 토글 등)만 해도 saveProgress()가 그대로 실행돼 Firestore의
+   실제 저장 데이터를 빈 값으로 덮어써버림 — 그러면 다음에 또 들어와도
+   실제로 진짜 비어있으니 "매번 리셋된다"로 재현되는 것. 즉 단순 표시 버그가
+   아니라 read 실패가 write로 전파되어 실제 데이터를 지우는 사고였음.
+   수정: (1) read 실패 시 최대 2회 자동 재시도(1초/2초 간격, 순단 자체복구
+   유도) (2) 재시도까지 다 실패하면 PROG를 건드리지 않고(빈 값으로 절대
+   덮어쓰지 않음) progLoaded를 false로 남겨 saveProgress()가 아예 아무것도
+   저장하지 못하게 원천 차단 (3) 사용자에게 "불러오지 못했다"고 명시적으로
+   알리는 확인/취소 팝업(loadFailModal, 기존 로그인/처음부터하기 모달과 동일
+   박스·버튼 스타일)을 띄워 침묵 리셋을 막음 — 확인을 누르면 새로고침(재시도),
+   취소를 누르면 팝업만 닫힘(진행 상황 표시는 여전히 불러오기 전 상태). */
+let progLoaded = false;
+function loadProgress(uid, _retry){
   return firebase.firestore().collection('dexProgress').doc(uid).get().then(doc=>{
     const d = doc.exists ? doc.data() : null;
     PROG = { f:(d&&d.f)||{}, dx:(d&&d.dx)||{}, ntf:(d&&d.ntf)||{}, cgAt:(d&&d.cgAt)||0, av:(d&&d.av)||null,
       solvedCount:(d&&d.solvedCount)||0, unlockedAv:(d&&d.unlockedAv)||[], avPending:(d&&d.avPending)||[], avNewBadge:(d&&d.avNewBadge)||[],
       ui:(d&&d.ui)||{} };
-  }).catch(err=>{ console.error('loadProgress 실패:',err); PROG = { f:{}, dx:{}, ntf:{}, cgAt:0, av:null, solvedCount:0, unlockedAv:[], avPending:[], avNewBadge:[], ui:{} }; });
+    progLoaded = true;
+  }).catch(err=>{
+    console.error('loadProgress 실패:',err);
+    const tries=(_retry||0)+1;
+    if(tries<3) return new Promise(res=>setTimeout(res,tries*1000)).then(()=>loadProgress(uid,tries));
+    progLoaded = false;
+    $('loadFailModal').classList.add('on');
+  });
 }
 /* 21차: 저장 실패가 조용히 묻히던 문제 — 콘솔에 실제 에러를 남겨서 "저장이 안 되는 것 같다"는
-   증상이 재현될 때 원인(권한/네트워크 등)을 바로 확인할 수 있게 함 */
+   증상이 재현될 때 원인(권한/네트워크 등)을 바로 확인할 수 있게 함.
+   27차: loadProgress가 성공적으로 끝나 progLoaded가 true가 되기 전까지는
+   절대 저장하지 않도록 가드 추가(위 주석 참고 — read 실패가 write로 전파되어
+   실제 저장 데이터를 지우는 사고 방지). */
 function saveProgress(){
   if(!progUid) return;
+  if(!progLoaded){ console.warn('saveProgress 건너뜀: 진행 상황이 아직 로드되지 않음(로드 실패 또는 진행 중)'); return; }
   firebase.firestore().collection('dexProgress').doc(progUid).set({ f:PROG.f, dx:PROG.dx, ntf:PROG.ntf, cgAt:PROG.cgAt, av:PROG.av,
     solvedCount:PROG.solvedCount, unlockedAv:PROG.unlockedAv, avPending:PROG.avPending, avNewBadge:PROG.avNewBadge, ui:PROG.ui||{} })
     .catch(err=>{ console.error('saveProgress 실패:',err); });
@@ -873,7 +914,7 @@ if(fbReady){
       loadProgress(user.uid).then(()=>{ applyUiFromProg(); renderGrid();
         if(cur!=null && $('detail').classList.contains('on') && !quiz) re(true);
         else checkCompletionPopup(); });
-    } else { loggedIn = false; progUid = null; PROG = { f:{}, dx:{}, ntf:{}, cgAt:0, av:null, solvedCount:0, unlockedAv:[], avPending:[], avNewBadge:[], ui:{} }; setAuthUI('out'); renderGrid(); }
+    } else { loggedIn = false; progUid = null; progLoaded = false; PROG = { f:{}, dx:{}, ntf:{}, cgAt:0, av:null, solvedCount:0, unlockedAv:[], avPending:[], avNewBadge:[], ui:{} }; setAuthUI('out'); renderGrid(); }
   });
 } else { setAuthUI('out'); }
 /* 퀴즈와 동일한 섹션 접기 동작 */
