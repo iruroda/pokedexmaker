@@ -967,7 +967,7 @@ if(fbReady){
         userCoin = d.coin30||0; userCoinEarned = d.coin30Earned||0;
         setAuthUI(isAdmin ? 'admin' : 'in', label);
       }).catch(()=> { setAuthUI('in', label); });
-      loadProgress(user.uid).then(()=>{ applyUiFromProg(); renderGrid();
+      loadProgress(user.uid).then(()=>{ applyUiFromProg(); renderProfileCard(); renderGrid();
         if(cur!=null && $('detail').classList.contains('on') && !quiz) re(true);
         else checkCompletionPopup(); });
     } else { loggedIn = false; progUid = null; progLoaded = false; PROG = { f:{}, dx:{}, ntf:{}, cgAt:0, av:null, solvedCount:0, unlockedAv:[], avPending:[], avNewBadge:[], lastRankIdx:0, ui:{} }; userCoin=0; userCoinEarned=0; setAuthUI('out'); renderGrid(); }
