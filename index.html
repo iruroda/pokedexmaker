@@ -137,8 +137,20 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun 
 #side .mprofBar{flex:1;height:7px;border-radius:999px;background:var(--line);overflow:hidden}
 #side .mprofBarFill{height:100%;background:var(--accent);border-radius:999px;transition:width .3s ease}
 #side .mprofPct{font-size:11px;color:var(--sub);font-variant-numeric:tabular-nums;flex:0 0 auto}
+/* 30주년 코인 카드: 프로필 카드와 동일 폭(같은 좌우 padding:16px), 로그인+코인 1개 이상일 때만 노출 */
+#side .mcoin{padding:8px 16px 0}
+#side .mcoinCard{display:flex;align-items:center;gap:8px;background:#FFCF0F;border:2px solid #FFCF0F;
+ border-radius:14px;padding:10px 12px;box-sizing:border-box}
+#side .mcoinIco{width:20px;height:20px;object-fit:contain;flex:0 0 auto}
+#side .mcoinCnt{font-size:14px;font-weight:800;color:#000000;white-space:nowrap;flex:0 0 auto}
+#side .mcoinDiv{width:1px;align-self:stretch;background:rgba(0,0,0,.3);flex:0 0 auto}
+#side .mcoinTxt{flex:1;min-width:0;font-size:12px;font-weight:700;color:#000000;white-space:nowrap;
+ overflow:hidden;text-overflow:ellipsis}
+#side .mcoin30{color:#E70011}
+#side .mcoinGo{width:22px;height:22px;border-radius:50%;background:#FFFFFF;display:flex;align-items:center;
+ justify-content:center;flex:0 0 auto;cursor:pointer;text-decoration:none}
 #side .mgroup{margin-top:32px;padding-top:0}
-#side .mprof+.mgroup{margin-top:16px}
+#side .mcoin+.mgroup{margin-top:16px}
 #side .mgroup>.mgh{font-size:13.5px;font-weight:800;color:var(--text);margin:0 16px 10px;
  display:flex;align-items:center;gap:8px;letter-spacing:-.3px}
 #side .mgroup>.mgh:after{content:"";flex:1;height:1px;background:#cfe0f5}
@@ -350,6 +362,8 @@ table.st td.dn{color:#b03a3a;background:#fdf3f3}
 #ov .tag{font-size:10px;font-weight:700;color:#1565c0;background:#eef4fc;padding:2px 7px;
  border-radius:999px;display:inline-block;margin-bottom:0}
 #ov .d{font-size:13px;line-height:1.65;color:#1a1a1a;word-break:keep-all;margin-top:14px}
+#ov .ovCoinLine{display:inline-flex;align-items:center;gap:4px;margin-top:2px}
+#ov .ovCoinIco{width:16px;height:16px;object-fit:contain}
 #ov.compact .d{margin-top:14px}
 #ov .ovbtnrow{margin-top:14px;display:flex;flex-direction:column;gap:8px}
 #ov .ovbox{border:1px solid var(--line);border-radius:10px;padding:11px;text-align:center;
@@ -510,6 +524,17 @@ table.st td.dn{color:#b03a3a;background:#fdf3f3}
         </div>
         <div class="mprofBarRow"><div class="mprofBar"><div class="mprofBarFill" id="mprofBarFill" style="width:0%"></div></div><span class="mprofPct" id="mprofPct"></span></div>
       </div>
+    </div>
+  </div>
+  <div class="mcoin" id="mcoinWrap" style="display:none">
+    <div class="mcoinCard">
+      <img class="mcoinIco" src="coin.png" alt="">
+      <span class="mcoinCnt" id="mcoinCnt">0개</span>
+      <span class="mcoinDiv"></span>
+      <span class="mcoinTxt"><span class="mcoin30">30</span>주년 로고 아이콘 갤러리 바로가기</span>
+      <a class="mcoinGo" id="mcoinGo" href="https://iruroda.github.io/pokemon30" target="_blank" rel="noopener" aria-label="30주년 로고 아이콘 갤러리로 이동">
+        <svg viewBox="0 0 24 24" width="13" height="13"><polygon points="7,4 18,12 7,20" fill="#FFCF0F"></polygon></svg>
+      </a>
     </div>
   </div>
   <div class="mgroup"><div class="mgh">도감 설정</div>
@@ -814,6 +839,23 @@ let loggedIn = false;
    실루엣 상태로 보임(사용자 지시: "그냥 계속 처음 실루엣인 상태임"). */
 let PROG = { f:{}, dx:{}, ntf:{}, cgAt:0, av:null, solvedCount:0, unlockedAv:[], avPending:[], avNewBadge:[], lastRankIdx:0, ui:{} };
 let progUid = null;
+/* 30주년 코인: 계정(users/{uid}) 문서에 저장 — 이 도감 앱 전용 진행상황(dexProgress)과
+   분리해 30주년 로고 아이콘 갤러리(iruroda.github.io/pokemon30, 별도 사이트) 등 다른
+   페이지와도 공유되는 계정 공통 필드로 둔다. coin30=현재 사용 가능한 잔액(다른 페이지에서
+   소비 가능), coin30Earned=지금까지 누적으로 획득한 총량(소비 여부와 무관, 이 값 기준으로
+   최대치를 제한 — "사용한 것 포함해서 최대 1324개"). */
+const COIN_MAX = 1324;
+let userCoin = 0, userCoinEarned = 0;
+function awardCoins(amount){
+  if(!loggedIn || !progUid || !amount) return 0;
+  const gained = Math.max(0, Math.min(amount, COIN_MAX - userCoinEarned));
+  if(gained<=0) return 0;
+  userCoin += gained; userCoinEarned += gained;
+  firebase.firestore().collection('users').doc(progUid).set({ coin30:userCoin, coin30Earned:userCoinEarned }, { merge:true })
+    .catch(err=>{ console.error('coin30 저장 실패:',err); });
+  renderProfileCard();
+  return gained;
+}
 /* 27차: "페이지 나갔다가 들어오면 진행상황이 리셋된다"(#47) 근본원인 발견·수정 —
    로그인 상태(firebase auth)는 로컬에 남아있어 유지되지만, 그 직후 실행되는
    loadProgress()의 Firestore read가 (네트워크 순단·브라우저 광고/트래커 차단
@@ -920,13 +962,15 @@ if(fbReady){
       loggedIn = true; closeLogin(); progUid = user.uid;
       const label = emailToId(user.email) || user.displayName || '회원';
       firebase.firestore().collection('users').doc(user.uid).get().then(doc=>{
-        const isAdmin = doc.exists && doc.data().isAdmin === true;
+        const d = doc.exists ? doc.data() : {};
+        const isAdmin = d.isAdmin === true;
+        userCoin = d.coin30||0; userCoinEarned = d.coin30Earned||0;
         setAuthUI(isAdmin ? 'admin' : 'in', label);
       }).catch(()=> { setAuthUI('in', label); });
       loadProgress(user.uid).then(()=>{ applyUiFromProg(); renderGrid();
         if(cur!=null && $('detail').classList.contains('on') && !quiz) re(true);
         else checkCompletionPopup(); });
-    } else { loggedIn = false; progUid = null; progLoaded = false; PROG = { f:{}, dx:{}, ntf:{}, cgAt:0, av:null, solvedCount:0, unlockedAv:[], avPending:[], avNewBadge:[], lastRankIdx:0, ui:{} }; setAuthUI('out'); renderGrid(); }
+    } else { loggedIn = false; progUid = null; progLoaded = false; PROG = { f:{}, dx:{}, ntf:{}, cgAt:0, av:null, solvedCount:0, unlockedAv:[], avPending:[], avNewBadge:[], lastRankIdx:0, ui:{} }; userCoin=0; userCoinEarned=0; setAuthUI('out'); renderGrid(); }
   });
 } else { setAuthUI('out'); }
 /* 퀴즈와 동일한 섹션 접기 동작 */
@@ -1464,7 +1508,7 @@ function startRetryQuiz(){
   const wrong=quiz.list.filter(q=>q.answered&&q.ok===false);
   if(!wrong.length) return;
   quizTransitionToken++;
-  quiz={ n:wrong.length, answered:0, view:0, correct:0, busy:false, sel:[],
+  quiz={ n:wrong.length, answered:0, view:0, correct:0, busy:false, sel:[], retry:true,
     list:wrong.map(q=>({p:q.p,fk:q.fk,type:q.type,answered:false,ok:null,userSel:null,liveSel:[],options:q.options,pickNo:null})) };
   renderQ();
 }
@@ -1712,7 +1756,7 @@ $('avConfirm').onclick=confirmAvatarPick;
 $('avModal').onclick=e=>{ if(e.target.id==='avModal') closeAvatarPicker(); };
 function renderProfileCard(){
   const box=$('mprof');
-  if(!loggedIn){ box.style.display='none'; return; }
+  if(!loggedIn){ box.style.display='none'; $('mcoinWrap').style.display='none'; return; }
   box.style.display='block';
   const pct=overallStats().pct;
   $('mprofId').textContent=profLabel||'';
@@ -1723,6 +1767,14 @@ function renderProfileCard(){
   $('mprofBarFill').style.width=Math.max(0,Math.min(100,pct))+'%';
   $('mprofPct').textContent=pct.toFixed(1)+'%';
   $('mprofAv').src=cafeSrc(currentAvatarId());
+  renderCoinCard();
+}
+/* 30주년 코인 카드: 로그인 + 코인 1개 이상 보유일 때만 프로필 카드 바로 밑에 노출 */
+function renderCoinCard(){
+  const box=$('mcoinWrap');
+  if(!loggedIn || userCoin<=0){ box.style.display='none'; return; }
+  box.style.display='block';
+  $('mcoinCnt').textContent=userCoin+'개';
 }
 function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
 function qNum(s){ const n=parseFloat(String(s).replace(/[^0-9.]/g,'')); return isNaN(n)?null:n; }
@@ -2216,7 +2268,10 @@ function endQuiz(){
   applyQuizProgress();
   $('ovBanner').style.display='none';
   $('ovT').textContent='챌린지 종료'; $('ovT').style.textAlign='center'; $('ovT').style.display='block'; $('ovTag').innerHTML='';
-  $('ovD').textContent=`${quiz.n} 문제 중 ${quiz.correct} 문제를 맞히셨습니다.`;
+  const coinGain = (loggedIn && !quiz.retry) ? awardCoins(quiz.n/10) : 0;
+  let ovDHtml = `${quiz.n} 문제 중 ${quiz.correct} 문제를 맞혔습니다.`;
+  if(coinGain>0) ovDHtml += `<br><span class="ovCoinLine"><img class="ovCoinIco" src="coin.png" alt="">30주년 코인을 ${coinGain}개 획득했습니다.</span>`;
+  $('ovD').innerHTML = ovDHtml;
   quizEndFlag=true; $('ovR').style.display='block';
   $('ovX').style.display=(quiz.correct<quiz.n)?'block':'none';
   $('ovC').textContent='메인으로 나가기'; $('ovC').classList.remove('plain');
