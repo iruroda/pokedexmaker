@@ -140,14 +140,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun 
 /* 30주년 코인 카드: 프로필 카드와 동일 폭(같은 좌우 padding:16px), 로그인+코인 1개 이상일 때만 노출 */
 #side .mcoin{padding:8px 16px 0}
 #side .mcoinCard{display:flex;align-items:center;gap:8px;background:#FFCF0F;border:2px solid #FFCF0F;
- border-radius:14px;padding:10px 12px;box-sizing:border-box}
-#side .mcoinIco{width:20px;height:20px;object-fit:contain;flex:0 0 auto}
+ border-radius:14px;padding:7px 12px;box-sizing:border-box}
+#side .mcoinIco{width:22px;height:22px;object-fit:contain;flex:0 0 auto}
 #side .mcoinCnt{font-size:14px;font-weight:800;color:#000000;white-space:nowrap;flex:0 0 auto}
-#side .mcoinDiv{width:1px;align-self:stretch;background:rgba(0,0,0,.3);flex:0 0 auto}
 #side .mcoinTxt{flex:1;min-width:0;font-size:12px;font-weight:700;color:#000000;white-space:nowrap;
- overflow:hidden;text-overflow:ellipsis}
+ overflow:hidden;text-overflow:ellipsis;text-align:right}
 #side .mcoinGo{width:22px;height:22px;border-radius:50%;background:#FFFFFF;display:flex;align-items:center;
  justify-content:center;flex:0 0 auto;cursor:pointer;text-decoration:none}
+#side .mcoinGo svg{margin-left:1.5px}
 #side .mgroup{margin-top:32px;padding-top:0}
 #side .mcoin+.mgroup{margin-top:16px}
 #side .mgroup>.mgh{font-size:13.5px;font-weight:800;color:var(--text);margin:0 16px 10px;
@@ -529,10 +529,9 @@ table.st td.dn{color:#b03a3a;background:#fdf3f3}
     <div class="mcoinCard">
       <img class="mcoinIco" src="coin.png" alt="">
       <span class="mcoinCnt" id="mcoinCnt">×0</span>
-      <span class="mcoinDiv"></span>
       <span class="mcoinTxt">코인 사용하러 가기</span>
       <a class="mcoinGo" id="mcoinGo" href="https://iruroda.github.io/pokemon30" target="_blank" rel="noopener" aria-label="코인 사용하러 가기">
-        <svg viewBox="0 0 24 24" width="17" height="17"><polyline points="7,3 18,12 7,21" fill="none" stroke="#FFCF0F" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"></polyline></svg>
+        <svg viewBox="0 0 24 24" width="15" height="15"><polyline points="7,3 18,12 7,21" fill="none" stroke="#FFCF0F" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"></polyline></svg>
       </a>
     </div>
   </div>
