@@ -146,7 +146,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun 
 #side .mcoinDiv{width:1px;align-self:stretch;background:rgba(0,0,0,.3);flex:0 0 auto}
 #side .mcoinTxt{flex:1;min-width:0;font-size:12px;font-weight:700;color:#000000;white-space:nowrap;
  overflow:hidden;text-overflow:ellipsis}
-#side .mcoin30{color:#E70011}
 #side .mcoinGo{width:22px;height:22px;border-radius:50%;background:#FFFFFF;display:flex;align-items:center;
  justify-content:center;flex:0 0 auto;cursor:pointer;text-decoration:none}
 #side .mgroup{margin-top:32px;padding-top:0}
@@ -529,11 +528,11 @@ table.st td.dn{color:#b03a3a;background:#fdf3f3}
   <div class="mcoin" id="mcoinWrap" style="display:none">
     <div class="mcoinCard">
       <img class="mcoinIco" src="coin.png" alt="">
-      <span class="mcoinCnt" id="mcoinCnt">0개</span>
+      <span class="mcoinCnt" id="mcoinCnt">×0</span>
       <span class="mcoinDiv"></span>
-      <span class="mcoinTxt"><span class="mcoin30">30</span>주년 로고 아이콘 갤러리 바로가기</span>
-      <a class="mcoinGo" id="mcoinGo" href="https://iruroda.github.io/pokemon30" target="_blank" rel="noopener" aria-label="30주년 로고 아이콘 갤러리로 이동">
-        <svg viewBox="0 0 24 24" width="13" height="13"><polygon points="7,4 18,12 7,20" fill="#FFCF0F"></polygon></svg>
+      <span class="mcoinTxt">코인 사용하러 가기</span>
+      <a class="mcoinGo" id="mcoinGo" href="https://iruroda.github.io/pokemon30" target="_blank" rel="noopener" aria-label="코인 사용하러 가기">
+        <svg viewBox="0 0 24 24" width="17" height="17"><polyline points="7,3 18,12 7,21" fill="none" stroke="#FFCF0F" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"></polyline></svg>
       </a>
     </div>
   </div>
@@ -1774,7 +1773,7 @@ function renderCoinCard(){
   const box=$('mcoinWrap');
   if(!loggedIn || userCoin<=0){ box.style.display='none'; return; }
   box.style.display='block';
-  $('mcoinCnt').textContent=userCoin+'개';
+  $('mcoinCnt').textContent='×'+userCoin;
 }
 function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
 function qNum(s){ const n=parseFloat(String(s).replace(/[^0-9.]/g,'')); return isNaN(n)?null:n; }
@@ -2270,7 +2269,7 @@ function endQuiz(){
   $('ovT').textContent='챌린지 종료'; $('ovT').style.textAlign='center'; $('ovT').style.display='block'; $('ovTag').innerHTML='';
   const coinGain = (loggedIn && !quiz.retry) ? awardCoins(quiz.n/10) : 0;
   let ovDHtml = `${quiz.n} 문제 중 ${quiz.correct} 문제를 맞혔습니다.`;
-  if(coinGain>0) ovDHtml += `<br><span class="ovCoinLine"><img class="ovCoinIco" src="coin.png" alt="">30주년 코인을 ${coinGain}개 획득했습니다.</span>`;
+  if(coinGain>0) ovDHtml += `<br><span class="ovCoinLine">30주년 코인<img class="ovCoinIco" src="coin.png" alt="">을 ${coinGain}개 획득했습니다.</span>`;
   $('ovD').innerHTML = ovDHtml;
   quizEndFlag=true; $('ovR').style.display='block';
   $('ovX').style.display=(quiz.correct<quiz.n)?'block':'none';
