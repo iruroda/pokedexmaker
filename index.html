@@ -101,7 +101,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun 
 #side .msec.collapsed h3{margin-bottom:0}
 #side .msec.collapsed .car{transform:rotate(-90deg)}
 #side .msec.collapsed .chips{display:none}
-#side .chips{display:flex;flex-wrap:wrap;gap:6px;padding:0 14px} #side .chips.scrollrow{flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none} #side .chips.scrollrow::-webkit-scrollbar{display:none} #side .chips.scrollrow .chip{flex:0 0 auto}
+#side .chips{display:flex;flex-wrap:wrap;gap:6px;padding:0 14px}
 #side .chip{background:var(--soft);border:1px solid var(--line);color:var(--text);
  border-radius:16px;padding:4px 12px;font-size:12px;cursor:pointer;white-space:nowrap;letter-spacing:-.3px}
 #side .chip.on{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700}
@@ -112,7 +112,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun 
 #side .authrow{display:flex;gap:8px}
 #side .prevrow{display:flex;gap:8px;margin-bottom:8px}
 #side .mbig{flex:1;background:var(--card);border:1px solid var(--line);color:var(--text);
- border-radius:12px;padding:9px 12px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;
+ border-radius:12px;padding:8px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit;
  text-decoration:none;text-align:center;display:flex;align-items:center;justify-content:center}
 #side .mbig:active{background:var(--soft)}
 #side .mbig.danger{color:#F0567A}
@@ -143,7 +143,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun 
  border-radius:14px;padding:7px 12px;box-sizing:border-box}
 #side .mcoinIco{width:22px;height:22px;object-fit:contain;flex:0 0 auto}
 #side .mcoinCnt{font-size:17px;font-weight:800;color:#000000;white-space:nowrap;flex:0 0 auto}
-#side .mcoinTxt{flex:1;min-width:0;font-size:14px;font-weight:700;color:#000000;white-space:nowrap;
+#side .mcoinTxt{flex:1;min-width:0;font-size:14px;font-weight:800;letter-spacing:-.3px;color:#000000;white-space:nowrap;
  overflow:hidden;text-overflow:ellipsis;text-align:right}
 #side .mcoinGo{width:22px;height:22px;border-radius:50%;background:#FFFFFF;display:flex;align-items:center;
  justify-content:center;flex:0 0 auto;cursor:pointer;text-decoration:none}
@@ -160,6 +160,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun 
 .modal.on{display:flex}
 .modal .box{background:var(--card);border-radius:16px;padding:26px 22px;width:100%;max-width:300px;
  text-align:center;box-shadow:0 10px 40px rgba(0,0,0,.25)}
+.modal .box{position:relative}
+.xclose{position:absolute;top:10px;right:10px;width:28px;height:28px;border:none;background:transparent;
+ display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;color:var(--sub);z-index:2}
+.xclose svg{display:block}
+.xclose:hover{color:var(--text)}
 .modal .box.avbox{max-width:320px;max-height:80vh;display:flex;flex-direction:column}
 .avgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;overflow-y:auto;padding:2px;margin:2px 0 14px}
 .avgrid .avit{position:relative;border-radius:12px;border:2px solid var(--line);background:var(--soft);cursor:pointer;
@@ -171,6 +176,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun 
 .modal .btnrow{display:flex;gap:8px;margin-top:8px}
 .modal .btnrow button{flex:1;margin-top:0}
 .modal .btnrow .grayb{border:1px solid var(--line);border-radius:10px}
+.modal .btnrow .holdbtn{padding:11px;font-size:14px}
 .resetWarn{color:#F0567A;font-size:13px;line-height:1.5;margin:0 0 4px}
 .modalDesc{color:var(--text);font-size:13px;line-height:1.5;margin:0 0 4px}
 .holdbtn{position:relative;overflow:hidden;touch-action:none}
@@ -353,6 +359,8 @@ table.st td.dn{color:#b03a3a;background:#fdf3f3}
 #ov.on{display:flex}
 #ov .box{background:#fff;border-radius:16px;max-width:340px;width:100%;padding:18px 18px 14px;
  box-shadow:0 12px 40px rgba(0,0,0,.28);animation:pop .16s ease}
+#ov .box{position:relative}
+#ov .ovbox.plain{display:none}
 @keyframes pop{from{transform:scale(.9);opacity:0}to{transform:scale(1);opacity:1}}
 #ov .ovbanner{width:120px;height:120px;object-fit:contain;display:block;margin:0 auto 10px}
 #ov .t{font-size:16px;font-weight:800;display:inline;vertical-align:middle}
@@ -537,7 +545,7 @@ table.st td.dn{color:#b03a3a;background:#fdf3f3}
   </div>
   <div class="mgroup"><div class="mgh">도감 설정</div>
     <div class="msec" data-key="gen"><h3>세대별로 보기<span class="car">▾</span></h3>
-      <div class="chips scrollrow" id="gens"></div></div>
+      <div class="chips" id="gens"></div></div>
     <div class="msec" data-key="done"><h3>도감 정보 완성/미완성<span class="car">▾</span></h3>
       <div class="chips" id="doneFilter"></div></div>
     <div class="msec" data-key="pctview"><h3>완성률 보기<span class="car">▾</span></h3>
@@ -545,7 +553,7 @@ table.st td.dn{color:#b03a3a;background:#fdf3f3}
   </div>
   <div class="mgroup"><div class="mgh">챌린지 설정</div>
     <div class="msec" data-key="chgen"><h3>대상 세대 선택<span class="car">▾</span></h3>
-      <div class="chips scrollrow" id="chGens"></div></div>
+      <div class="chips" id="chGens"></div></div>
     <div class="msec" data-key="chtype"><h3>문제 종류 선택<span class="car">▾</span></h3>
       <div class="chips" id="chTypes"></div></div>
     <div class="msec" data-key="chorder"><h3>출제 방식<span class="car">▾</span></h3>
@@ -564,44 +572,44 @@ table.st td.dn{color:#b03a3a;background:#fdf3f3}
   </div>
 </aside></div>
 <div class="modal" id="avModal"><div class="box avbox">
+  <button class="xclose" id="avClose" type="button" aria-label="닫기"><svg viewBox="0 0 24 24" width="16" height="16"><path d="M6 6 L18 18 M18 6 L6 18" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"></path></svg></button>
   <h2>프로필 아이콘 변경</h2>
   <div class="avgrid" id="avGrid"></div>
   <div class="btnrow">
     <button class="primary" id="avConfirm" type="button">확인</button>
-    <button class="secondary grayb" id="avCancel" type="button">취소</button>
   </div>
 </div></div>
 <div class="modal" id="resetModal"><div class="box">
+  <button class="xclose" id="resetClose" type="button" aria-label="닫기"><svg viewBox="0 0 24 24" width="16" height="16"><path d="M6 6 L18 18 M18 6 L6 18" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"></path></svg></button>
   <h2>처음부터 하기</h2>
   <div class="resetWarn">저장된 진행 상황을 전부 초기화합니다.</div>
   <div class="btnrow">
     <button class="secondary grayb holdbtn" id="resetConfirm" type="button"><span class="holdfill"></span><span class="holdlabel">확인</span><span class="holdlabelw">확인</span></button>
-    <button class="secondary grayb" id="resetCancel" type="button">취소</button>
   </div>
 </div></div>
 <div class="modal" id="loadFailModal"><div class="box">
+  <button class="xclose" id="loadFailClose" type="button" aria-label="닫기"><svg viewBox="0 0 24 24" width="16" height="16"><path d="M6 6 L18 18 M18 6 L6 18" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"></path></svg></button>
   <h2>불러오기 실패</h2>
   <div class="modalDesc">진행 상황을 불러오지 못했습니다. 재시도하시겠습니까?</div>
   <div class="btnrow">
     <button class="primary" id="loadFailConfirm" type="button">확인</button>
-    <button class="secondary grayb" id="loadFailCancel" type="button">취소</button>
   </div>
 </div></div>
 <div id="detail"></div>
 <div id="backfab"><button id="retryFab" title="틀린 문제만 다시 풀기"><span>틀린 문제만</span><span>다시 풀기</span></button><button id="backBtn" title="메인으로" aria-label="메인으로"><svg viewBox="0 0 24 24" width="27" height="27" fill="none" stroke="#fff" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6 L4.5 10.5 L9 15"></path><path d="M4.5 10.5 H14.5 A5 5 0 0 1 14.5 20.5 H8"></path></svg></button></div>
 <div id="dov"></div>
-<div id="ov"><div class="box"><img class="ovbanner" id="ovBanner" alt="" style="display:none"><div class="t" id="ovT"></div><div id="ovTag"></div>
+<div id="ov"><div class="box"><button class="xclose" id="ovXClose" type="button" aria-label="닫기"><svg viewBox="0 0 24 24" width="16" height="16"><path d="M6 6 L18 18 M18 6 L6 18" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"></path></svg></button><img class="ovbanner" id="ovBanner" alt="" style="display:none"><div class="t" id="ovT"></div><div id="ovTag"></div>
   <div class="d" id="ovD"></div>
   <div class="ovbtnrow"><div class="ovbox" id="ovR" style="display:none">결과 확인하기</div><div class="ovbox" id="ovX" style="display:none">틀린 문제만 다시 풀기</div><div class="ovbox" id="ovC">닫기</div></div></div></div>
 <div id="toast"></div>
 <div id="imgov"><img id="imgovImg" src="" alt="" draggable="false"></div>
 <div id="loginModal" class="modal">
   <div class="box">
+    <button class="xclose" id="loginClose" type="button" aria-label="닫기"><svg viewBox="0 0 24 24" width="16" height="16"><path d="M6 6 L18 18 M18 6 L6 18" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"></path></svg></button>
     <h2 id="loginTitle">로그인</h2>
     <input id="loginId" type="text" placeholder="아이디" autocomplete="username">
     <input id="loginPw" type="password" placeholder="비밀번호" autocomplete="current-password">
     <button class="primary" id="loginSubmit" type="button">확인</button>
-    <button class="secondary" id="loginCancel" type="button">닫기</button>
   </div>
 </div>
 <script>
@@ -782,10 +790,10 @@ $('resetBtn').onclick=()=>{ cancelResetHold(); $('resetModal').classList.add('on
 $('resetConfirm').addEventListener('pointerdown',startResetHold);
 $('resetConfirm').addEventListener('pointerup',cancelResetHold);
 $('resetConfirm').addEventListener('pointercancel',cancelResetHold);
-$('resetCancel').onclick=()=>{ cancelResetHold(); $('resetModal').classList.remove('on'); };
+$('resetClose').onclick=()=>{ cancelResetHold(); $('resetModal').classList.remove('on'); };
 $('resetModal').onclick=e=>{ if(e.target.id==='resetModal'){ cancelResetHold(); $('resetModal').classList.remove('on'); } };
 $('loadFailConfirm').onclick=()=>location.reload();
-$('loadFailCancel').onclick=()=>{ $('loadFailModal').classList.remove('on'); };
+$('loadFailClose').onclick=()=>{ $('loadFailModal').classList.remove('on'); };
 $('loadFailModal').onclick=e=>{ if(e.target.id==='loadFailModal') $('loadFailModal').classList.remove('on'); };
 
 let profLabel=null;
@@ -949,7 +957,7 @@ function doLogin(){
     });
 }
 $('loginBtn').onclick = ()=>{ loggedIn ? firebase.auth().signOut() : openLogin(); };
-$('loginCancel').onclick = closeLogin;
+$('loginClose').onclick = closeLogin;
 $('loginModal').onclick = e=>{ if(e.target.id==='loginModal') closeLogin(); };
 $('loginSubmit').onclick = doLogin;
 $('loginPw').addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); doLogin(); } });
@@ -1521,6 +1529,7 @@ $('ov').onclick=e=>{ if(e.target===$('ov')){ quizEndFlag ? reviewQuiz() : closeO
   else if(e.target.id==='ovC') closeOv();
   else if(e.target.id==='ovR') reviewQuiz();
   else if(e.target.id==='ovX'){ $('ov').classList.remove('on'); quizEndFlag=false; startRetryQuiz(); } };
+$('ovXClose').onclick=closeOv;
 $('imgov').onclick=()=>$('imgov').classList.remove('on');
 document.addEventListener('keydown',e=>{
   if(e.key==='Escape'){
@@ -1749,7 +1758,7 @@ function openAvatarPicker(){
 function closeAvatarPicker(){ $('avModal').classList.remove('on'); }
 function confirmAvatarPick(){ PROG.av=avPickId; saveProgress(); renderProfileCard(); closeAvatarPicker(); }
 $('mprofAv').onclick=openAvatarPicker;
-$('avCancel').onclick=closeAvatarPicker;
+$('avClose').onclick=closeAvatarPicker;
 $('avConfirm').onclick=confirmAvatarPick;
 $('avModal').onclick=e=>{ if(e.target.id==='avModal') closeAvatarPicker(); };
 function renderProfileCard(){
@@ -2331,7 +2340,7 @@ function checkCompletionPopup(){
 function showNewlyCompletedPopup(list){
   $('ovBanner').style.display='none';
   $('ovT').textContent='도감 등록 완료'; $('ovT').style.textAlign='center'; $('ovT').style.display='block'; $('ovTag').innerHTML='';
-  $('ovD').innerHTML = '도감 등록이 완료된 포켓몬이 있습니다. 확인하시겠습니까?'
+  $('ovD').innerHTML = '도감 등록이 완료된 포켓몬이 있습니다.'
     + `<div class="ovlist">${list.map(p=>`<div class="ovit" data-no="${p.no}">`
       + `<img src="${TH(p.no)}" alt="" loading="lazy" draggable="false">`
       + `<span class="ovno">No.${pad(p.no)}</span>`
@@ -2347,7 +2356,7 @@ function showAvatarUnlockPopup(){
   $('ovT').textContent='프로필 아이콘 추가'; $('ovT').style.textAlign='center'; $('ovT').style.display='block'; $('ovTag').innerHTML='';
   $('ovD').textContent='새로운 프로필 아이콘이 추가되었습니다.';
   quizEndFlag=false; $('ovR').style.display='none'; $('ovX').style.display='none';
-  $('ovC').textContent='닫기'; $('ovC').classList.add('plain');
+  $('ovC').textContent='확인'; $('ovC').classList.remove('plain');
   $('ov').classList.add('on','compact');
 }
 /* 37차: 도감 랭크업 안내 팝업. 기존 프로필 아이콘 획득 팝업과 동일한 #ov 컴팩트 형식(닫기 버튼만). */
@@ -2356,7 +2365,7 @@ function showRankUpPopup(){
   $('ovT').textContent='RANK UP!'; $('ovT').style.textAlign='center'; $('ovT').style.display='block'; $('ovTag').innerHTML='';
   $('ovD').textContent=`도감 랭크가 ${rankUpLabel}으로 올랐습니다.`;
   quizEndFlag=false; $('ovR').style.display='none'; $('ovX').style.display='none';
-  $('ovC').textContent='닫기'; $('ovC').classList.add('plain');
+  $('ovC').textContent='확인'; $('ovC').classList.remove('plain');
   $('ov').classList.add('on','compact');
 }
 function showCongratsPopup(){
