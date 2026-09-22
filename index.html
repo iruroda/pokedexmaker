@@ -109,7 +109,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun 
 #side .sfoot{margin-top:32px;padding:16px 14px calc(20px + env(safe-area-inset-bottom))}
 #side .mgreet{font-size:12.5px;color:var(--sub);text-align:left;margin-bottom:10px;line-height:1.4}
 #side .mgreet.on{color:var(--accent);font-weight:700}
-#side #side .authrow{display:flex;gap:8px}
+#side .authrow{display:flex;gap:8px}
 #side .prevrow{display:flex;gap:8px;margin-bottom:8px}
 #side .mbig{flex:1;background:var(--card);border:1px solid var(--line);color:var(--text);
  border-radius:12px;padding:8px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit;
@@ -431,7 +431,6 @@ table.st td.dn{color:#b03a3a;background:#fdf3f3}
 @media (hover:hover) and (pointer:fine){
   html{scrollbar-gutter:stable both-edges}
   #detail{scrollbar-gutter:stable both-edges}
-  #side{scrollbar-gutter:stable both-edges}
   html::-webkit-scrollbar,#detail::-webkit-scrollbar,#side::-webkit-scrollbar{width:12px;height:12px}
   html::-webkit-scrollbar-track,#detail::-webkit-scrollbar-track,#side::-webkit-scrollbar-track{background:transparent}
   html::-webkit-scrollbar-thumb,#detail::-webkit-scrollbar-thumb,#side::-webkit-scrollbar-thumb{
@@ -566,7 +565,7 @@ table.st td.dn{color:#b03a3a;background:#fdf3f3}
       <button class="mbig danger" id="resetBtn" type="button">처음부터 하기</button>
     </div>
     <div class="authrow">
-      <a class="mbig" href="https://iruroda.github.io/pokelab/" target="_blank" rel="noopener">Pokélab 메인으로</a>
+      <a class="mbig" href="https://iruroda.github.io/pokelab/">Pokélab 메인으로</a>
       <button class="mbig" id="loginBtn" type="button">로그인</button>
     </div>
   </div>
