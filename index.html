@@ -109,8 +109,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun 
 #side .sfoot{margin-top:32px;padding:16px 14px calc(20px + env(safe-area-inset-bottom))}
 #side .mgreet{font-size:12.5px;color:var(--sub);text-align:left;margin-bottom:10px;line-height:1.4}
 #side .mgreet.on{color:var(--accent);font-weight:700}
-#side .mgreet.admin{color:var(--accent);font-weight:700}
-#side .authrow{display:flex;gap:8px}
+#side #side .authrow{display:flex;gap:8px}
 #side .prevrow{display:flex;gap:8px;margin-bottom:8px}
 #side .mbig{flex:1;background:var(--card);border:1px solid var(--line);color:var(--text);
  border-radius:12px;padding:8px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit;
@@ -189,9 +188,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun 
  clip-path:inset(0 100% 0 0);pointer-events:none}
 .holdbtn.filling .holdlabelw{transition:clip-path 3s linear}
 .modal h2{font-size:16px;margin:0 0 14px;font-weight:800;color:var(--text)}
-.modal input{width:100%;background:var(--soft);border:1.5px solid var(--line);border-radius:10px;
- color:var(--text);font-size:14px;padding:10px 12px;margin-bottom:9px;outline:none;
- font-family:inherit;box-sizing:border-box}
 .modal input:focus{border-color:var(--accent)}
 .modal button.primary{margin-top:4px;width:100%;background:var(--accent);border:none;border-radius:10px;
  padding:11px;font-size:14px;font-weight:700;color:var(--accent-t);cursor:pointer;font-family:inherit;
@@ -435,18 +431,19 @@ table.st td.dn{color:#b03a3a;background:#fdf3f3}
 @media (hover:hover) and (pointer:fine){
   html{scrollbar-gutter:stable both-edges}
   #detail{scrollbar-gutter:stable both-edges}
-  html::-webkit-scrollbar,#detail::-webkit-scrollbar{width:12px;height:12px}
-  html::-webkit-scrollbar-track,#detail::-webkit-scrollbar-track{background:transparent}
-  html::-webkit-scrollbar-thumb,#detail::-webkit-scrollbar-thumb{
+  #side{scrollbar-gutter:stable both-edges}
+  html::-webkit-scrollbar,#detail::-webkit-scrollbar,#side::-webkit-scrollbar{width:12px;height:12px}
+  html::-webkit-scrollbar-track,#detail::-webkit-scrollbar-track,#side::-webkit-scrollbar-track{background:transparent}
+  html::-webkit-scrollbar-thumb,#detail::-webkit-scrollbar-thumb,#side::-webkit-scrollbar-thumb{
     background:transparent;border:3px solid transparent;border-radius:10px;
     background-clip:padding-box;transition:background .25s}
-  html.scrolling::-webkit-scrollbar-thumb,#detail.scrolling::-webkit-scrollbar-thumb{
+  html.scrolling::-webkit-scrollbar-thumb,#detail.scrolling::-webkit-scrollbar-thumb,#side.scrolling::-webkit-scrollbar-thumb{
     background:rgba(0,0,0,.28);border:3px solid transparent;background-clip:padding-box}
-  html.scrolling::-webkit-scrollbar-thumb:hover,#detail.scrolling::-webkit-scrollbar-thumb:hover{
+  html.scrolling::-webkit-scrollbar-thumb:hover,#detail.scrolling::-webkit-scrollbar-thumb:hover,#side.scrolling::-webkit-scrollbar-thumb:hover{
     background:rgba(0,0,0,.42);border:3px solid transparent;background-clip:padding-box}
   /* Firefox */
-  html,#detail{scrollbar-width:none;scrollbar-color:rgba(0,0,0,.28) transparent}
-  html.scrolling,#detail.scrolling{scrollbar-width:thin}
+  html,#detail,#side{scrollbar-width:none;scrollbar-color:rgba(0,0,0,.28) transparent}
+  html.scrolling,#detail.scrolling,#side.scrolling{scrollbar-width:thin}
   /* 38차: PC(마우스 포인터) 환경에서 코인카드 텍스트가 모바일 대비 커 보인다는 피드백 + 코인 자릿수 증가 대비 여유폭 확보 */
   #side .mcoinTxt{font-size:12.5px}
 }
@@ -606,15 +603,6 @@ table.st td.dn{color:#b03a3a;background:#fdf3f3}
   <div class="ovbtnrow"><div class="ovbox" id="ovR" style="display:none">결과 확인하기</div><div class="ovbox" id="ovX" style="display:none">틀린 문제만 다시 풀기</div><div class="ovbox" id="ovC">닫기</div></div></div></div>
 <div id="toast"></div>
 <div id="imgov"><img id="imgovImg" src="" alt="" draggable="false"></div>
-<div id="loginModal" class="modal">
-  <div class="box">
-    <button class="xclose" id="loginClose" type="button" aria-label="닫기"><svg viewBox="0 0 24 24" width="16" height="16"><path d="M6 6 L18 18 M18 6 L6 18" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"></path></svg></button>
-    <h2 id="loginTitle">로그인</h2>
-    <input id="loginId" type="text" placeholder="아이디" autocomplete="username">
-    <input id="loginPw" type="password" placeholder="비밀번호" autocomplete="current-password">
-    <button class="primary" id="loginSubmit" type="button">확인</button>
-  </div>
-</div>
 <script>
 /* 17차 진단 결함 발견/수정: 이 페이지는 renderGrid()에서 이미지 <img> 태그를 1000개
    넘게 만드는데, 크롬 performance.getEntriesByType('resource') 버퍼는 기본 250개
@@ -827,11 +815,6 @@ try{
 }catch(e){ console.warn('Firebase init 실패:', e); }
 
 /* pokelab과 동일한 아이디→이메일 변환 (계정 공유를 위해 반드시 동일해야 함) */
-function idToEmail(id){
-  var hex="",b=unescape(encodeURIComponent(id));
-  for(var i=0;i<b.length;i++){var h=b.charCodeAt(i).toString(16);hex+=(h.length<2?"0":"")+h}
-  return "u"+hex+"@todayspokemon.app";
-}
 function emailToId(email){
   const m=/^u([0-9a-f]+)@todayspokemon\.app$/.exec(email||'');
   if(!m) return null;
@@ -933,48 +916,36 @@ function applyUiFromProg(){
 }
 function setAuthUI(state, label){
   const g = $('mgreet');
-  g.classList.remove('on','admin');
+  g.classList.remove('on');
   if(state==='in'){ g.textContent = label+'님, 안녕하세요.'; g.classList.add('on'); $('loginBtn').textContent='로그아웃'; profLabel=label; }
-  else if(state==='admin'){ g.textContent = '관리자로 로그인 중입니다.'; g.classList.add('admin'); $('loginBtn').textContent='로그아웃'; profLabel=label; }
   else { g.textContent = '로그인하면 기록을 저장할 수 있습니다.'; $('loginBtn').textContent='로그인'; profLabel=null; }
   renderProfileCard();
 }
-let loginMsgT=null;
-function resetLoginBtn(){ clearTimeout(loginMsgT); const b=$('loginSubmit'); b.textContent='확인'; b.disabled=false; b.classList.remove('err'); }
-function flashLoginMsg(text){ const b=$('loginSubmit'); clearTimeout(loginMsgT);
-  b.disabled=false; b.classList.add('err'); b.textContent=text;
-  loginMsgT=setTimeout(()=>{ b.textContent='확인'; b.classList.remove('err'); },1800); }
-function openLogin(){ $('loginId').value=''; $('loginPw').value=''; resetLoginBtn(); $('loginModal').classList.add('on'); }
-function closeLogin(){ $('loginModal').classList.remove('on'); resetLoginBtn(); }
-function doLogin(){
-  const id = $('loginId').value.trim(), pw = $('loginPw').value;
-  if(!id || !pw){ flashLoginMsg('아이디와 비밀번호를 입력해주세요.'); return; }
-  if(pw.length<6){ flashLoginMsg('비밀번호는 6자 이상이어야 합니다.'); return; }
-  if(!fbReady){ flashLoginMsg('로그인 연동 준비 중입니다.'); return; }
-  clearTimeout(loginMsgT);
-  const b=$('loginSubmit'); b.classList.remove('err'); b.disabled=true; b.textContent='로그인 중...';
-  firebase.auth().signInWithEmailAndPassword(idToEmail(id), pw)
+/* 39차: 계정 정책 변경 — 이제 구글 계정으로만 로그인. 별도 팝업 없이 바로 구글 로그인 창으로 이동 */
+let googleSignInBusy=false;
+function signInWithGoogle(){
+  if(!fbReady){ toast('로그인 연동 준비 중입니다.'); return; }
+  if(googleSignInBusy) return;
+  googleSignInBusy=true;
+  const provider=new firebase.auth.GoogleAuthProvider();
+  firebase.auth().signInWithPopup(provider)
     .catch(err=>{
-      const credCodes=['auth/wrong-password','auth/user-not-found','auth/invalid-email','auth/invalid-credential','auth/missing-password'];
-      flashLoginMsg(credCodes.includes(err&&err.code) ? '계정 정보가 일치하지 않습니다.' : '로그인에 실패했습니다.');
-    });
+      if(err && err.code==='auth/popup-closed-by-user') return;
+      toast('로그인에 실패했습니다.');
+    })
+    .finally(()=>{ googleSignInBusy=false; });
 }
-$('loginBtn').onclick = ()=>{ loggedIn ? firebase.auth().signOut() : openLogin(); };
-$('loginClose').onclick = closeLogin;
-$('loginModal').onclick = e=>{ if(e.target.id==='loginModal') closeLogin(); };
-$('loginSubmit').onclick = doLogin;
-$('loginPw').addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); doLogin(); } });
+$('loginBtn').onclick = ()=>{ loggedIn ? firebase.auth().signOut() : signInWithGoogle(); };
 
 if(fbReady){
   firebase.auth().onAuthStateChanged(user=>{
     if(user){
-      loggedIn = true; closeLogin(); progUid = user.uid;
+      loggedIn = true; progUid = user.uid;
       const label = emailToId(user.email) || user.displayName || '회원';
       firebase.firestore().collection('users').doc(user.uid).get().then(doc=>{
         const d = doc.exists ? doc.data() : {};
-        const isAdmin = d.isAdmin === true;
         userCoin = d.coin30||0; userCoinEarned = d.coin30Earned||0;
-        setAuthUI(isAdmin ? 'admin' : 'in', label);
+        setAuthUI('in', label);
       }).catch(()=> { setAuthUI('in', label); });
       loadProgress(user.uid).then(()=>{ applyUiFromProg(); renderProfileCard(); renderGrid();
         if(cur!=null && $('detail').classList.contains('on') && !quiz) re(true);
@@ -1538,8 +1509,7 @@ $('ovXClose').onclick=closeOv;
 $('imgov').onclick=()=>$('imgov').classList.remove('on');
 document.addEventListener('keydown',e=>{
   if(e.key==='Escape'){
-    if($('loginModal').classList.contains('on')) closeLogin();
-    else if($('imgov').classList.contains('on')) $('imgov').classList.remove('on');
+    if($('imgov').classList.contains('on')) $('imgov').classList.remove('on');
     else if($('ov').classList.contains('on')) closeOv();
     else if($('side').classList.contains('on')) closeSide();
     else closeDetail(); return; }
@@ -2392,6 +2362,7 @@ function hookScroll(target,classEl){ let t;
     clearTimeout(t); t=setTimeout(()=>classEl.classList.remove('scrolling'),650); },{passive:true}); }
 hookScroll(window,document.documentElement);
 hookScroll($('detail'),$('detail'));
+hookScroll($('side'),$('side'));
 /* 타입맞추기 퀴즈 그리드 최초 렌더 지연 완화: 화면 밖에서 미리 한 번 그려서 브라우저 렌더링 엔진을 예열 */
 function warmupQzTypes(){
   const html=QTYPES.map(t=>{ const c=D.tc[t]||'#8a8f96';
