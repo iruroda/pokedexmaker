@@ -95,7 +95,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans K
 #side .sh{position:sticky;top:0;z-index:2;background:#E4515B;color:#fff;font-size:15px;font-weight:800;letter-spacing:-.6px;
  padding:16px 16px;padding-top:calc(16px + env(safe-area-inset-top));display:flex;align-items:center;flex-shrink:0}
 /* 퀴즈(index.html)의 .msec / .chips / .chip 구조와 동일 — 통합 시 그대로 합쳐짐 */
-#side .msec h3{font-size:12px;color:var(--sub);font-weight:700;margin:18px 0 8px;padding:0 16px;
+#side .msec h3{font-size:12px;color:var(--sub);font-weight:700;margin:12px 0 8px;padding:0 16px;
  cursor:pointer;display:flex;align-items:center;justify-content:space-between;
  user-select:none;-webkit-user-select:none}
 #side .msec h3 .car{font-size:10px;color:var(--sub);transition:transform .2s}
@@ -104,10 +104,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans K
 #side .msec.collapsed .chips{display:none}
 #side .chips{display:flex;flex-wrap:wrap;gap:6px;padding:0 14px}
 #side .chip{background:var(--soft);border:1px solid var(--line);color:var(--text);
- border-radius:999px;padding:0 12px;height:24px;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;font-size:11.5px;font-weight:600;cursor:pointer;white-space:nowrap;letter-spacing:-.3px}
+ border-radius:999px;padding:0 12px;height:28px;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;font-size:11.5px;font-weight:600;cursor:pointer;white-space:nowrap;letter-spacing:-.3px}
 #side .chip.on{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700}
-#side .sfoot{margin-top:32px;padding:16px 14px calc(20px + env(safe-area-inset-bottom))}
-#side .mgreet{font-size:12.5px;font-weight:600;color:var(--sub);text-align:left;margin-bottom:10px;line-height:1.4}
+#side .sfoot{margin-top:0;padding:0 14px calc(20px + env(safe-area-inset-bottom))}
+#side .mgreet{font-size:12.5px;font-weight:600;color:var(--sub);text-align:left;margin:48px 0 8px;line-height:1.4}
 #side .mgreet.on{color:var(--sub);font-weight:600}
 #side .authrow{display:flex;gap:8px}
 #side .prevrow{display:flex;gap:8px;margin-bottom:8px}
@@ -118,7 +118,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans K
 #side #loginBtn.mbig,#side .mbig[href*="/pokelab"]{height:36px;box-sizing:border-box;padding:0 10px}
 #side .mbig.danger{color:#F0567A}
 #side .mbig.on{background:var(--accent);border-color:var(--accent);color:var(--accent-t)}
-#side .mprof{padding:14px 16px 6px}
+#side .mprof{padding:18px 16px 0}
 #side .mprofCard{display:flex;align-items:center;gap:12px;background:#eef4fc;
  border:2px solid #cfe0f5;border-radius:14px;padding:12px}
 #side .mprofAv{width:76px;height:76px;border-radius:12px;object-fit:contain;background:var(--soft);
@@ -139,7 +139,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans K
 #side .mprofBarFill{height:100%;background:var(--accent);border-radius:999px;transition:width .3s ease}
 #side .mprofPct{font-size:11px;color:var(--sub);font-variant-numeric:tabular-nums;flex:0 0 auto}
 /* 30주년 코인 카드: 프로필 카드와 동일 폭(같은 좌우 padding:16px), 로그인+코인 1개 이상일 때만 노출 */
-#side .mcoin{padding:8px 16px 0}
+#side .mcoin{padding:14px 16px 0}
 #side .mcoinCard{display:flex;align-items:center;gap:8px;background:#FFCF0F;border:2px solid #FFCF0F;
  border-radius:14px;padding:7px 12px;box-sizing:border-box}
 #side .mcoinIco{width:22px;height:22px;object-fit:contain;flex:0 0 auto}
@@ -149,9 +149,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans K
 #side .mcoinGo{width:22px;height:22px;border-radius:50%;background:#FFFFFF;display:flex;align-items:center;
  justify-content:center;flex:0 0 auto;cursor:pointer;text-decoration:none}
 #side .mcoinGo svg{margin-left:1.5px}
-#side .mgroup{margin-top:32px;padding-top:0}
-#side .mcoin+.mgroup{margin-top:16px}
-#side .mgroup>.mgh{font-size:13.5px;font-weight:800;color:var(--text);margin:0 16px 10px;
+#side .mgroup{margin-top:36px;padding-top:0}
+#side .mcoin+.mgroup{margin-top:18px}
+#side .mgroup>.mgh{font-size:13.5px;font-weight:800;color:var(--text);margin:0 16px 0;
  display:flex;align-items:center;gap:8px;letter-spacing:-.3px}
 #side .mgroup>.mgh:after{content:"";flex:1;height:1px;background:#cfe0f5}
 
@@ -178,10 +178,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans K
 .avgrid .avit.sel{border-color:var(--accent);background:#eef4fc}
 .modal .btnrow{display:flex;gap:8px;margin-top:8px}
 .modal .btnrow button{flex:1;margin-top:0}
-.modal .btnrow .grayb{border:1px solid var(--line);border-radius:10px}
-.modal .btnrow .holdbtn{padding:11px;font-size:14px}
-.resetWarn{color:#F0567A;font-size:13px;line-height:1.5;margin:0 0 4px}
-.modalDesc{color:var(--text);font-size:13px;line-height:1.5;margin:0 0 4px}
+.modal .btnrow .grayb{border:1px solid var(--line);border-radius:12px}
+.modal .btnrow .holdbtn{height:36px;padding:0;font-size:15px}
+.resetWarn{color:#F0567A;font-size:15px;line-height:1.6;margin:0 0 4px}
+.modalDesc{color:var(--text);font-size:15px;line-height:1.6;margin:0 0 4px}
 .holdbtn{position:relative;overflow:hidden;touch-action:none}
 .holdbtn .holdfill{position:absolute;left:0;top:0;bottom:0;width:0%;background:var(--accent);z-index:0}
 .holdbtn.filling .holdfill{transition:width 3s linear}
@@ -190,15 +190,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans K
  align-items:center;justify-content:center;color:var(--accent-t);font:inherit;font-weight:inherit;
  clip-path:inset(0 100% 0 0);pointer-events:none}
 .holdbtn.filling .holdlabelw{transition:clip-path 3s linear}
-.modal h2{font-size:15px;margin:0 0 14px;font-weight:800;color:var(--text)}
+.modal h2{font-size:17px;margin:0 0 14px;font-weight:800;color:var(--text)}
 .modal input:focus{border-color:var(--accent)}
-.modal button.primary{margin-top:4px;width:100%;background:var(--accent);border:none;border-radius:10px;
- padding:11px;font-size:14px;font-weight:700;color:var(--accent-t);cursor:pointer;font-family:inherit;
+.modal button.primary{margin-top:4px;width:100%;background:var(--accent);border:none;border-radius:12px;
+ height:36px;padding:0;font-size:15px;font-weight:700;color:var(--accent-t);cursor:pointer;font-family:inherit;
  transition:background .15s;box-sizing:border-box}
 .modal button.primary.err{background:#F0567A}
 .modal button.primary[disabled]{opacity:.7;cursor:default}
 .modal button.secondary{margin-top:8px;width:100%;background:none;border:none;color:var(--sub);
- font-size:12.5px;padding:6px;cursor:pointer;font-family:inherit}
+ font-size:15px;font-weight:700;height:36px;padding:0;box-sizing:border-box;cursor:pointer;font-family:inherit}
 
 .grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;padding:10px}
 .grid .cell{background:#fafafa;border:1px solid #e6e6e6;border-radius:10px;padding:4px 2px 7px;
@@ -363,20 +363,20 @@ table.st td.dn{color:#b03a3a;background:#fdf3f3}
 #ov .ovbox.plain{display:none}
 @keyframes pop{from{transform:scale(.9);opacity:0}to{transform:scale(1);opacity:1}}
 #ov .ovbanner{width:120px;height:120px;object-fit:contain;display:block;margin:0 auto 10px}
-#ov .t{font-size:15px;font-weight:800;display:inline;vertical-align:middle}
+#ov .t{font-size:17px;font-weight:800;display:inline;vertical-align:middle}
 #ov #ovTag{display:inline;margin-left:8px;vertical-align:middle}
 #ov #ovTag:empty{display:none}
 #ov .tag{font-size:10px;font-weight:700;color:#1565c0;background:#eef4fc;padding:2px 7px;
  border-radius:999px;display:inline-block;margin-bottom:0}
-#ov .d{font-size:13px;line-height:1.65;color:#1a1a1a;word-break:keep-all;margin-top:14px}
+#ov .d{font-size:15px;line-height:1.6;color:#1a1a1a;word-break:keep-all;margin-top:14px}
 #ov .ovCoinLine{display:inline-flex;align-items:center;gap:4px;margin-top:2px}
 #ov .ovCoinIco{width:16px;height:16px;object-fit:contain}
 #ov.compact .d{margin-top:14px}
 #ov .ovbtnrow{margin-top:14px;display:flex;flex-direction:column;gap:8px}
-#ov .ovbox{border:1px solid var(--line);border-radius:10px;padding:11px;text-align:center;
- font-size:14px;font-weight:800;color:var(--accent);cursor:pointer;transition:background .12s}
+#ov .ovbox{border:1px solid var(--line);border-radius:12px;width:100%;height:36px;line-height:34px;padding:0;box-sizing:border-box;text-align:center;
+ font-size:15px;font-weight:700;color:var(--accent);cursor:pointer;transition:background .12s}
 #ov .ovbox:active{background:#e6e6e6}
-#ov .ovbox.plain{border:none;background:none;color:var(--sub);font-weight:700;padding:6px}
+#ov .ovbox.plain{border:none;background:none;color:var(--sub);font-weight:700;line-height:36px}
 #ov .ovbox.plain:active{background:none;opacity:.6}
 /* 29차: 도감 완성 알림 팝업 내부 목록 — 검색 자동완성(.acit)과 동일한 형태(썸네일·번호·이름).
    30차: 구분선 목록 대신, 퀴즈 문제 박스(.qzdesc)와 같은 모서리 둥근 박스 하나로 감싸는 형태로 변경. */
