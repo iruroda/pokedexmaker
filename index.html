@@ -444,9 +444,9 @@ table.st td.dn{color:#b03a3a;background:#fdf3f3}
     background:rgba(0,0,0,.28);border:3px solid transparent;background-clip:padding-box}
   html.scrolling::-webkit-scrollbar-thumb:hover,#detail.scrolling::-webkit-scrollbar-thumb:hover,#side.scrolling::-webkit-scrollbar-thumb:hover{
     background:rgba(0,0,0,.42);border:3px solid transparent;background-clip:padding-box}
-  /* Firefox */
-  html,#detail,#side{scrollbar-width:none;scrollbar-color:rgba(0,0,0,.28) transparent}
-  html.scrolling,#detail.scrolling,#side.scrolling{scrollbar-width:thin}
+  /* 스크롤바 자리는 항상 확보(thin)하고 색만 투명↔표시 — 스크롤 시 폭이 변하지 않게 */
+  html,#detail,#side{scrollbar-width:thin;scrollbar-color:transparent transparent}
+  html.scrolling,#detail.scrolling,#side.scrolling{scrollbar-color:rgba(0,0,0,.28) transparent}
   /* 38차: PC(마우스 포인터) 환경에서 코인카드 텍스트가 모바일 대비 커 보인다는 피드백 + 코인 자릿수 증가 대비 여유폭 확보 */
   #side .mcoinTxt{font-size:12.5px}
 }
