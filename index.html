@@ -19,7 +19,7 @@
 input,textarea{-webkit-user-select:text;user-select:text;-webkit-touch-callout:default}
 img,svg{-webkit-user-drag:none;user-drag:none;-webkit-touch-callout:none}
 html,body{margin:0;padding:0;overscroll-behavior-y:contain}
-body{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",sans-serif;
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans KR","Malgun Gothic",sans-serif;
  background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased}
 #app{max-width:520px;margin:0 auto;background:var(--card);min-height:100vh;box-shadow:0 0 24px rgba(0,0,0,.08)}
 
@@ -86,7 +86,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun 
 #sideov.on{opacity:1;pointer-events:auto}
 #sideWrap{position:fixed;top:0;left:0;right:0;bottom:0;max-width:520px;margin:0 auto;z-index:160;
  display:flex;justify-content:flex-end;pointer-events:none}
-#side{position:relative;width:76%;max-width:300px;height:100%;
+#side{position:relative;width:min(320px,88vw);height:100%;
  background:#fff;opacity:0;transform:scale(.96);transform-origin:top right;pointer-events:none;
  transition:opacity .15s ease,transform .15s ease;
  display:flex;flex-direction:column;box-shadow:-6px 0 24px rgba(0,0,0,.2);overflow-y:auto}
@@ -104,7 +104,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun 
 #side .msec.collapsed .chips{display:none}
 #side .chips{display:flex;flex-wrap:wrap;gap:6px;padding:0 14px}
 #side .chip{background:var(--soft);border:1px solid var(--line);color:var(--text);
- border-radius:16px;padding:4px 12px;font-size:12px;cursor:pointer;white-space:nowrap;letter-spacing:-.3px}
+ border-radius:999px;padding:4px 12px;font-size:11.5px;font-weight:600;cursor:pointer;white-space:nowrap;letter-spacing:-.3px}
 #side .chip.on{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700}
 #side .sfoot{margin-top:32px;padding:16px 14px calc(20px + env(safe-area-inset-bottom))}
 #side .mgreet{font-size:12.5px;color:var(--sub);text-align:left;margin-bottom:10px;line-height:1.4}
@@ -158,13 +158,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun 
 .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:220;
  align-items:center;justify-content:center;padding:24px}
 .modal.on{display:flex}
-.modal .box{background:var(--card);border-radius:16px;padding:26px 22px;width:100%;max-width:300px;
+.modal .box{background:var(--card);border-radius:16px;padding:26px 22px;width:100%;max-width:320px;
  text-align:center;box-shadow:0 10px 40px rgba(0,0,0,.25)}
 .modal .box{position:relative}
 .xclose{position:absolute;top:10px;right:10px;width:28px;height:28px;border:none;background:transparent;
- display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;color:var(--sub);z-index:2}
-.xclose svg{display:block}
-.xclose:hover{color:var(--text)}
+ display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;z-index:2}
+.xclose span{position:absolute;width:14px;height:2px;border-radius:1px;background:var(--sub)}
+.xclose span:nth-child(1){transform:rotate(45deg)}
+.xclose span:nth-child(2){transform:rotate(-45deg)}
+.xclose:hover span{background:var(--text)}
 .modal .box.avbox{max-width:320px;max-height:80vh;display:flex;flex-direction:column}
 .avgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;overflow-y:auto;padding:2px;margin:2px 0 14px}
 .avgrid .avit{position:relative;border-radius:12px;border:2px solid var(--line);background:var(--soft);cursor:pointer;
@@ -187,7 +189,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun 
  align-items:center;justify-content:center;color:var(--accent-t);font:inherit;font-weight:inherit;
  clip-path:inset(0 100% 0 0);pointer-events:none}
 .holdbtn.filling .holdlabelw{transition:clip-path 3s linear}
-.modal h2{font-size:16px;margin:0 0 14px;font-weight:800;color:var(--text)}
+.modal h2{font-size:15px;margin:0 0 14px;font-weight:800;color:var(--text)}
 .modal input:focus{border-color:var(--accent)}
 .modal button.primary{margin-top:4px;width:100%;background:var(--accent);border:none;border-radius:10px;
  padding:11px;font-size:14px;font-weight:700;color:var(--accent-t);cursor:pointer;font-family:inherit;
@@ -354,13 +356,13 @@ table.st td.dn{color:#b03a3a;background:#fdf3f3}
 #ov{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.45);display:none;
  align-items:center;justify-content:center;padding:24px}
 #ov.on{display:flex}
-#ov .box{background:#fff;border-radius:16px;max-width:340px;width:100%;padding:18px 18px 14px;
+#ov .box{background:#fff;border-radius:16px;max-width:320px;width:100%;padding:18px 18px 14px;
  box-shadow:0 12px 40px rgba(0,0,0,.28);animation:pop .16s ease}
 #ov .box{position:relative}
 #ov .ovbox.plain{display:none}
 @keyframes pop{from{transform:scale(.9);opacity:0}to{transform:scale(1);opacity:1}}
 #ov .ovbanner{width:120px;height:120px;object-fit:contain;display:block;margin:0 auto 10px}
-#ov .t{font-size:16px;font-weight:800;display:inline;vertical-align:middle}
+#ov .t{font-size:15px;font-weight:800;display:inline;vertical-align:middle}
 #ov #ovTag{display:inline;margin-left:8px;vertical-align:middle}
 #ov #ovTag:empty{display:none}
 #ov .tag{font-size:10px;font-weight:700;color:#1565c0;background:#eef4fc;padding:2px 7px;
@@ -431,6 +433,7 @@ table.st td.dn{color:#b03a3a;background:#fdf3f3}
 @media (hover:hover) and (pointer:fine){
   html{scrollbar-gutter:stable both-edges}
   #detail{scrollbar-gutter:stable both-edges}
+  #side{scrollbar-gutter:stable}
   html::-webkit-scrollbar,#detail::-webkit-scrollbar,#side::-webkit-scrollbar{width:12px;height:12px}
   html::-webkit-scrollbar-track,#detail::-webkit-scrollbar-track,#side::-webkit-scrollbar-track{background:transparent}
   html::-webkit-scrollbar-thumb,#detail::-webkit-scrollbar-thumb,#side::-webkit-scrollbar-thumb{
@@ -571,7 +574,7 @@ table.st td.dn{color:#b03a3a;background:#fdf3f3}
   </div>
 </aside></div>
 <div class="modal" id="avModal"><div class="box avbox">
-  <button class="xclose" id="avClose" type="button" aria-label="닫기"><svg viewBox="0 0 24 24" width="16" height="16"><path d="M6 6 L18 18 M18 6 L6 18" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"></path></svg></button>
+  <button class="xclose" id="avClose" type="button" aria-label="닫기"><span></span><span></span></button>
   <h2>프로필 아이콘 변경</h2>
   <div class="avgrid" id="avGrid"></div>
   <div class="btnrow">
@@ -579,7 +582,7 @@ table.st td.dn{color:#b03a3a;background:#fdf3f3}
   </div>
 </div></div>
 <div class="modal" id="resetModal"><div class="box">
-  <button class="xclose" id="resetClose" type="button" aria-label="닫기"><svg viewBox="0 0 24 24" width="16" height="16"><path d="M6 6 L18 18 M18 6 L6 18" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"></path></svg></button>
+  <button class="xclose" id="resetClose" type="button" aria-label="닫기"><span></span><span></span></button>
   <h2>처음부터 하기</h2>
   <div class="resetWarn">저장된 진행 상황을 전부 초기화합니다.</div>
   <div class="btnrow">
@@ -587,7 +590,7 @@ table.st td.dn{color:#b03a3a;background:#fdf3f3}
   </div>
 </div></div>
 <div class="modal" id="loadFailModal"><div class="box">
-  <button class="xclose" id="loadFailClose" type="button" aria-label="닫기"><svg viewBox="0 0 24 24" width="16" height="16"><path d="M6 6 L18 18 M18 6 L6 18" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"></path></svg></button>
+  <button class="xclose" id="loadFailClose" type="button" aria-label="닫기"><span></span><span></span></button>
   <h2>불러오기 실패</h2>
   <div class="modalDesc">진행 상황을 불러오지 못했습니다. 재시도하시겠습니까?</div>
   <div class="btnrow">
@@ -597,7 +600,7 @@ table.st td.dn{color:#b03a3a;background:#fdf3f3}
 <div id="detail"></div>
 <div id="backfab"><button id="retryFab" title="틀린 문제만 다시 풀기"><span>틀린 문제만</span><span>다시 풀기</span></button><button id="backBtn" title="메인으로" aria-label="메인으로"><svg viewBox="0 0 24 24" width="27" height="27" fill="none" stroke="#fff" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6 L4.5 10.5 L9 15"></path><path d="M4.5 10.5 H14.5 A5 5 0 0 1 14.5 20.5 H8"></path></svg></button></div>
 <div id="dov"></div>
-<div id="ov"><div class="box"><button class="xclose" id="ovXClose" type="button" aria-label="닫기"><svg viewBox="0 0 24 24" width="16" height="16"><path d="M6 6 L18 18 M18 6 L6 18" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"></path></svg></button><img class="ovbanner" id="ovBanner" alt="" style="display:none"><div class="t" id="ovT"></div><div id="ovTag"></div>
+<div id="ov"><div class="box"><button class="xclose" id="ovXClose" type="button" aria-label="닫기"><span></span><span></span></button><img class="ovbanner" id="ovBanner" alt="" style="display:none"><div class="t" id="ovT"></div><div id="ovTag"></div>
   <div class="d" id="ovD"></div>
   <div class="ovbtnrow"><div class="ovbox" id="ovR" style="display:none">결과 확인하기</div><div class="ovbox" id="ovX" style="display:none">틀린 문제만 다시 풀기</div><div class="ovbox" id="ovC">닫기</div></div></div></div>
 <div id="toast"></div>
