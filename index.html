@@ -26,9 +26,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans K
 /* ===== 고정 상단바 ===== */
 .topbar{position:fixed;top:0;left:0;right:0;z-index:60;max-width:520px;margin:0 auto;
  background:#E4515B;color:#fff;display:flex;align-items:center;gap:6px;
- padding:8px 9px;padding-top:calc(8px + env(safe-area-inset-top));
+ padding:12px 12px 8px;padding-top:calc(12px + env(safe-area-inset-top));
  box-shadow:0 2px 8px rgba(0,0,0,.12)}
-.tbspace{height:calc(50px + env(safe-area-inset-top))}
+.tbspace{height:calc(54px + env(safe-area-inset-top))}
 .topbar>*{box-sizing:border-box}
 .topbar .mainb{flex:0 0 auto;height:34px;display:flex;align-items:center;font-size:12.5px;font-weight:800;
  letter-spacing:-.5px;padding:0 11px;border-radius:9px;background:rgba(255,255,255,.16);cursor:pointer;white-space:nowrap}
@@ -42,7 +42,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans K
 .search .clearX{flex:0 0 auto;cursor:pointer;padding:0;opacity:.92;user-select:none;display:block}
 .search .clearX:active{opacity:.55}
 /* ===== 검색 자동완성 ===== */
-#acbox{position:fixed;top:calc(50px + env(safe-area-inset-top));left:0;right:0;z-index:58;
+#acbox{position:fixed;top:calc(54px + env(safe-area-inset-top));left:0;right:0;z-index:58;
  max-width:520px;margin:0 auto;background:#fff;border-radius:0 0 16px 16px;
  box-shadow:0 12px 26px rgba(0,0,0,.18);max-height:64vh;overflow-y:auto;
  display:none;padding:4px 0;-webkit-overflow-scrolling:touch}
@@ -54,8 +54,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans K
 #acbox .acit .acnm{font-size:15px;font-weight:700;letter-spacing:-.3px;word-break:keep-all}
 #acbox .acempty{padding:16px;text-align:center;color:#8a8f96;font-size:13px}
 .quizbar{flex:0 0 auto;display:flex;gap:4px}
-.quizbar b{height:34px;min-width:36px;display:flex;align-items:center;justify-content:center;
- font-size:14px;font-weight:800;padding:0 8px;border-radius:9px;cursor:pointer;
+.quizbar b{width:34px;height:34px;flex:0 0 auto;display:flex;align-items:center;justify-content:center;
+ font-size:15px;font-weight:700;padding:0;border-radius:50%;cursor:pointer;
  font-variant-numeric:tabular-nums;line-height:1;transition:transform .12s,filter .12s}
 .quizbar b[data-n="10"]{background:#FF7B92;color:#fff}
 .quizbar b[data-n="30"]{background:#DFC437;color:#fff}
@@ -68,7 +68,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans K
    left:0;right:0;max-width:520px;margin:0 auto 박스 안에 넣어 항상 정확히 정렬되게 함 */
 #menuBtnWrap{position:fixed;top:0;left:0;right:0;max-width:520px;margin:0 auto;z-index:161;
  display:flex;justify-content:flex-end;pointer-events:none}
-#menuBtn{margin-top:calc(8px + env(safe-area-inset-top));margin-right:9px;pointer-events:auto;
+#menuBtn{margin-top:calc(12px + env(safe-area-inset-top));margin-right:9px;pointer-events:auto;
  width:34px;height:34px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;
  border-radius:9px;cursor:pointer;flex-shrink:0}
 #menuBtn span{display:block;width:19px;height:3px;border-radius:2px;background:#fff;
@@ -158,7 +158,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans K
 .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:220;
  align-items:center;justify-content:center;padding:24px}
 .modal.on{display:flex}
-.modal .box{background:var(--card);border-radius:16px;padding:24px;width:100%;max-width:320px;
+.modal .box{background:var(--card);border-radius:16px;padding:18px 24px 24px;width:100%;max-width:320px;
  text-align:center;box-shadow:0 10px 40px rgba(0,0,0,.25)}
 .modal .box{position:relative}
 .xclose{position:absolute;top:10px;right:10px;width:28px;height:28px;border:none;background:transparent;
@@ -222,7 +222,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans K
 .grid .cell.lkloc img{filter:brightness(0) invert(.902)}
 .grid .cell.lkpar img{filter:grayscale(1)}
 
-#detail{position:fixed;top:calc(50px + env(safe-area-inset-top));left:0;right:0;bottom:0;z-index:55;
+#detail{position:fixed;top:calc(54px + env(safe-area-inset-top));left:0;right:0;bottom:0;z-index:55;
  background:transparent;overflow-y:auto;overflow-x:hidden;overscroll-behavior-y:contain;
  opacity:0;visibility:hidden;transition:opacity .16s ease,visibility 0s linear .16s;-webkit-overflow-scrolling:touch}
 #detail .dwrap{max-width:520px;margin:0 auto;background:#fff;min-height:100%}
@@ -356,7 +356,7 @@ table.st td.dn{color:#b03a3a;background:#fdf3f3}
 #ov{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.45);display:none;
  align-items:center;justify-content:center;padding:24px}
 #ov.on{display:flex}
-#ov .box{background:#fff;border-radius:16px;max-width:320px;width:100%;padding:24px;
+#ov .box{background:#fff;border-radius:16px;max-width:320px;width:100%;padding:18px 24px 24px;
  box-shadow:0 12px 40px rgba(0,0,0,.28);animation:pop .16s ease}
 #ov .box{position:relative}
 #ov .ovbox.plain{display:none}
@@ -419,7 +419,7 @@ table.st td.dn{color:#b03a3a;background:#fdf3f3}
 #backfab.fade #retryFab{opacity:0}
 #backfab svg{display:block}
 /* ===== 포켓몬 전환(스와이프/화살표): 보던 포켓몬 위로 새 포켓몬이 밀려들어옴 ===== */
-#dov{position:fixed;top:calc(50px + env(safe-area-inset-top));left:0;right:0;bottom:0;z-index:56;
+#dov{position:fixed;top:calc(54px + env(safe-area-inset-top));left:0;right:0;bottom:0;z-index:56;
  overflow:hidden;pointer-events:none;display:none}
 #dov.on{display:block}
 #dov .dwrap{max-width:520px;margin:0 auto;background:#fff;height:100%;overflow:hidden;
@@ -507,7 +507,7 @@ table.st td.dn{color:#b03a3a;background:#fdf3f3}
 </style></head><body>
 <div id="app">
   <div class="topbar">
-    <div class="search"><svg class="mgi" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="#1565c0" stroke-width="3" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"></circle><line x1="20" y1="20" x2="15.3" y2="15.3"></line></svg><input id="q" placeholder="" autocomplete="off"><svg class="clearX" id="qClear" viewBox="0 0 24 24" width="17" height="17" title="검색어 지우기"><path d="M6 6 L18 18 M18 6 L6 18" stroke="#1565c0" stroke-width="2.4" stroke-linecap="round"></path></svg></div>
+    <div class="search"><svg class="mgi" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"></circle><line x1="20" y1="20" x2="15.3" y2="15.3"></line></svg><input id="q" placeholder="" autocomplete="off"><svg class="clearX" id="qClear" viewBox="0 0 24 24" width="17" height="17" title="검색어 지우기"><path d="M6 6 L18 18 M18 6 L6 18" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round"></path></svg></div>
     <div class="quizbar" id="quizbar"><b data-n="10">10</b><b data-n="30">30</b><b data-n="50">50</b></div>
     <div class="ic hamb-spacer"></div>
   </div>
