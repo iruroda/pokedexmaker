@@ -92,7 +92,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans K
 #side.on{opacity:1;transform:scale(1);pointer-events:auto}
 #side .sh img{width:22px;height:22px;object-fit:contain;vertical-align:-5px;margin-right:6px}
 #side .sh{position:sticky;top:0;z-index:2;background:#E4515B;color:#fff;font-size:15px;font-weight:800;letter-spacing:-.6px;margin:0 -16px;
- padding:12px 16px 8px;border-bottom:4px solid #B93D47;display:flex;align-items:center;flex-shrink:0}
+ padding:16px 16px 8px;border-bottom:4px solid #B93D47;display:flex;align-items:center;flex-shrink:0}
 /* 퀴즈(index.html)의 .msec / .chips / .chip 구조와 동일 — 통합 시 그대로 합쳐짐 */
 #side .msec h3{font-size:12px;color:var(--sub);font-weight:700;margin:12px 0 8px;
  cursor:pointer;display:flex;align-items:center;justify-content:space-between;
@@ -105,7 +105,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans K
 #side .chip{background:var(--soft);border:1px solid var(--line);color:var(--text);
  border-radius:999px;padding:0 12px;height:28px;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;font-size:11.5px;font-weight:600;cursor:pointer;white-space:nowrap;letter-spacing:-.3px}
 #side .chip.on{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700}
-#side .sfoot{margin-top:0;padding:0 0 20px}
+#side .sfoot{margin-top:0;padding:0 0 16px}
 #side .mgreet{font-size:12.5px;font-weight:600;color:var(--sub);text-align:left;margin:36px 0 8px;line-height:1.4}
 #side .mgreet.on{color:var(--sub);font-weight:600}
 #side .authrow{display:flex;gap:8px}
@@ -143,7 +143,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans K
  border-radius:14px;padding:7px 12px;box-sizing:border-box}
 #side .mcoinIco{width:22px;height:22px;object-fit:contain;flex:0 0 auto}
 #side .mcoinCnt{font-size:17px;font-weight:700;color:#000000;white-space:nowrap;flex:0 0 auto}
-#side .mcoinTxt{flex:1;min-width:0;font-size:14px;font-weight:800;letter-spacing:-.3px;color:#000000;white-space:nowrap;
+#side .mcoinTxt{text-decoration:none;cursor:pointer;flex:1;min-width:0;font-size:14px;font-weight:800;letter-spacing:-.3px;color:#000000;white-space:nowrap;
  overflow:hidden;text-overflow:ellipsis;text-align:right}
 #side .mcoinGo{width:22px;height:22px;border-radius:50%;background:#FFFFFF;display:flex;align-items:center;
  justify-content:center;flex:0 0 auto;cursor:pointer;text-decoration:none}
@@ -539,7 +539,7 @@ table.st td.dn{color:#b03a3a;background:#fdf3f3}
     <div class="mcoinCard">
       <img class="mcoinIco" src="coin.png" alt="">
       <span class="mcoinCnt" id="mcoinCnt">×0</span>
-      <span class="mcoinTxt">코인 사용하러 가기</span>
+      <a class="mcoinTxt" href="https://iruroda.github.io/pokemon30" target="_blank" rel="noopener">코인 사용하러 가기</a>
       <a class="mcoinGo" id="mcoinGo" href="https://iruroda.github.io/pokemon30" target="_blank" rel="noopener" aria-label="코인 사용하러 가기">
         <svg viewBox="0 0 24 24" width="15" height="15"><polyline points="7,3 18,12 7,21" fill="none" stroke="#FFCF0F" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"></polyline></svg>
       </a>
